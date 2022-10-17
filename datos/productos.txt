@@ -1,2 +1,0 @@
-1	cereal gran dia	cereal de maiz cubierto con chocolate sabor a cacao	45	23.4	12.4
-2	tortrix de limon	tortrix sabor a limon y granos de sal	34	1	1.45

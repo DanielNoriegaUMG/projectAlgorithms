@@ -3,8 +3,9 @@
 #include <string.h>
 #include <stdio.h>
 #include <stdlib.h>
-#include <fstream> //creacion de ficheros
 #include <windows.h>
+
+int op,contCliente,contProveedor,contProducto;
 
 struct Datos{
 	int codigo;
@@ -21,15 +22,13 @@ struct Productos{
 	float price;
 	float peso;
 	float total;
-}producto;
+}producto[20];
 
 struct Proveedor{
 	struct Datos prov;
-}proveedor;
+}proveedor[20];
 
 using namespace std;
-
-int op;
 
 void gotoxy(int x, int y);
 void formato();
@@ -48,6 +47,9 @@ main(){
 	system("cls");
 	system("color 0F");
 	system("mode 650");
+	contCliente = 0;
+	contProducto = 0;
+	contProveedor = 0;
 	
 	do{
 		home();
@@ -142,13 +144,11 @@ void menuProductos(){
 		case 1:
 			system("cls");
 			registroProducto();
-			getch();
 			menuProductos();
 		break;
 		case 2:
 			system("cls");
 //			eliminarProducto();
-			getch();
 			menuProductos();
 		break;
 		case 3:
@@ -192,7 +192,6 @@ void menuProveedor(){
 		case 1:
 			system("cls");
 			registroProveedor();
-			getch();
 			menuProveedor();
 		break;
 		case 2:
@@ -229,180 +228,85 @@ void menuProveedor(){
 
 void registroProducto(){
 	cout<<"CODIGO: ";
-	cin>>producto.info.codigo;
+	cin>>producto[contProducto].info.codigo;
 	fflush(stdin);
 	cout<<"NOMBRE PRODUCTO: ";
-	cin.getline(producto.info.nombre,50,'\n');
+	cin.getline(producto[contProducto].info.nombre,50,'\n');
 	fflush(stdin);
 	cout<<"DESCRIPCION: ";
-	cin.getline(producto.description,60,'\n');
+	cin.getline(producto[contProducto].description,60,'\n');
 	fflush(stdin);
 	cout<<"CANTIDAD: ";
-	cin>>producto.quantity;
+	cin>>producto[contProducto].quantity;
 	fflush(stdin);
 	cout<<"PRECIO (UNIDAD): Q ";
-	cin>>producto.price;
+	cin>>producto[contProducto].price;
 	fflush(stdin);
 	cout<<"PESO: ";
-	cin>>producto.peso;
+	cin>>producto[contProducto].peso;
 	fflush(stdin);
-	strlwr(producto.info.nombre);
-	insertArticle();
-}
-
-void eliminarProductos(){
 	
-}
-
-void listaProductos(){
-	string txt;
-	char cod[100];
-	char cant[1000];
-	char price[1000];
-	char pes[1000];
-	char nombre[50];
-	char descripcion[100];
-	int codigo;
-	int cantidad;
-	float precio;
-	float peso;
+	//Pasar nombre y descripcion de producto a minusculas
+	strlwr(producto[contProducto].info.nombre);
+	strlwr(producto[contProducto].description);
 	
-	ifstream file; //declarar variable de archivo
-	file.open("C:/Users/HP INTEL/Documents/1. UMG/algoritmos/Tareas/proyecto/datos/productos.txt",ios::in); // leer fichero
-	
-	if(file.fail()){ // en caso falle algo al crear el archivo
-		cout<<"Error al cargar archivo...";
-		exit(1);
-	}
-	
-	while(!file.eof()){
-		file.getline(cod,100,'\t');
-		file.getline(nombre,50,'\t');
-		file.getline(descripcion,100,'\t');
-		file.getline(cant,1000,'\t');
-		file.getline(price,1000,'\t');
-		file.getline(pes,1000,'\n');
-		
-		codigo = atoi(cod);
-		cantidad = atoi(cant);
-		precio = atof(price);
-		peso = atof(pes);
-		
-		cout<<"Codigo: "<<codigo<<endl;
-		cout<<"Producto: "<<nombre<<endl;
-		cout<<"Descripcion: "<<descripcion<<endl;
-		cout<<"Cantidad: "<<cantidad<<endl;
-		cout<<"Precio: "<<precio<<endl;
-		cout<<"Peso: "<<peso<<endl;
-		cout<<"--------------------------"<<endl;
-	}
-	file.close(); // cerrar el archivo
-}
-
-void listaProveedor(){
-	char cod[100];
-	char nitP[10];
-	proveedor.prov.nombre;
-	proveedor.prov.direccion;
-	char tel[10];
-
-	ifstream file; //declarar variable de archivo
-	file.open("C:/Users/HP INTEL/Documents/1. UMG/algoritmos/Tareas/proyecto/datos/proveedores.txt",ios::in); // leer fichero
-	
-	if(file.fail()){ // en caso falle algo al crear el archivo
-		cout<<"Error al cargar archivo...";
-		exit(1);
-	}
-	
-	while(!file.eof()){
-		file.getline(cod,100,'\t');
-		file.getline(nitP,10,'\t');
-		file.getline(proveedor.prov.nombre,50,'\t');
-		file.getline(proveedor.prov.direccion,100,'\t');
-		file.getline(tel,10,'\n');
-		
-		proveedor.prov.codigo = atoi(cod);
-		proveedor.prov.nit = atoi(nitP);
-		proveedor.prov.telefono = atoi(tel);
-		
-		cout<<"Codigo: "<<proveedor.prov.codigo<<endl;
-		cout<<"NIT: "<<proveedor.prov.nit<<endl;
-		cout<<"Proveedor: "<<proveedor.prov.nombre<<endl;
-		cout<<"Direccion: "<<proveedor.prov.direccion<<endl;
-		cout<<"Telefono: "<<proveedor.prov.telefono<<endl;
-		cout<<"------------------------------"<<endl;
-	}
-	file.close(); // cerrar el archivo
+	contProducto++; //contador de productos
 }
 
 void registroProveedor(){
 	cout<<"CODIGO: ";
-	cin>>proveedor.prov.codigo;
+	cin>>proveedor[contProveedor].prov.codigo;
 	fflush(stdin);
 	cout<<"NOMBRE PROVEEDOR: ";
-	cin.getline(proveedor.prov.nombre,50,'\n');
+	cin.getline(proveedor[contProveedor].prov.nombre,50,'\n');
 	fflush(stdin);
 	cout<<"NIT: ";
-	cin>>proveedor.prov.nit;
+	cin>>proveedor[contProveedor].prov.nit;
 	fflush(stdin);
 	cout<<"DIRECCION: ";
-	cin.getline(proveedor.prov.direccion,100,'\n');
+	cin.getline(proveedor[contProveedor].prov.direccion,100,'\n');
 	fflush(stdin);
 	cout<<"TELEFONO: ";
-	cin>>proveedor.prov.telefono;
+	cin>>proveedor[contProveedor].prov.telefono;
 	fflush(stdin);
-	strlwr(proveedor.prov.nombre);
-	insertProvider();
+	
+	//Pasar nombre y direccion del proveedor a minusculas
+	strlwr(proveedor[contProveedor].prov.nombre);
+	strlwr(proveedor[contProveedor].prov.direccion);
+	
+	contProveedor++; //contador de proveedores
 }
 
-void insertArticle(){
-	ofstream file; //declarar variable de archivo
-	file.open("C:/Users/HP INTEL/Documents/1. UMG/algoritmos/Tareas/proyecto/datos/productos.txt", ios::app);
-	
-	if(file.fail()){ // en caso falle algo al crear el archivo
-		cout<<"Error al cargar archivo...";
-		exit(1);
+void listaProductos(){
+	gotoxy(3,2); cout<<"CODIGO";
+	gotoxy(18,2); cout<<"PRODUCTO";
+	gotoxy(70,2); cout<<"DESCRIPCION";
+	gotoxy(120,2); cout<<"CANTIDAD";
+	gotoxy(145,2); cout<<"PRECIO";
+	gotoxy(160,2); cout<<"PESO";
+
+	for(int i = 0; i < contProducto; i++){
+		gotoxy(3,i+4); cout<<producto[i].info.codigo;
+		gotoxy(18,i+4); cout<<producto[i].info.nombre;
+		gotoxy(70,i+4); cout<<producto[i].description;
+		gotoxy(120,i+4); cout<<producto[i].quantity;
+		gotoxy(145,i+4); cout<<producto[i].price;
+		gotoxy(160,i+4); cout<<producto[i].peso;
 	}
-	
-	file<<producto.info.codigo<<"\t";
-	file<<producto.info.nombre<<"\t";
-	file<<producto.description<<"\t";;
-	file<<producto.quantity<<"\t";;
-	file<<producto.price<<"\t";;
-	file<<producto.peso<<endl;
-	file.close(); // cerrar el archivo
 }
 
-void insertProvider(){
-	ofstream file; //declarar variable de archivo
-	file.open("C:/Users/HP INTEL/Documents/1. UMG/algoritmos/Tareas/proyecto/datos/proveedores.txt",ios::app); //agregar informacion al fichero
-	
-	if(file.fail()){ // en caso falle algo al crear el archivo
-		cout<<"Error al cargar archivo...";
-		exit(1);
-	}
-	
-	file<<proveedor.prov.codigo<<"\t";
-	file<<proveedor.prov.nit<<"\t";
-	file<<proveedor.prov.nombre<<"\t";
-	file<<proveedor.prov.direccion<<"\t";
-	file<<proveedor.prov.telefono<<endl;
-	file.close(); // cerrar el archivo
-}
+void listaProveedor(){
+	gotoxy(40,2); cout<<"CODIGO";
+	gotoxy(55,2); cout<<"PROVEEDOR";
+	gotoxy(76,2); cout<<"NIT";
+	gotoxy(90,2); cout<<"DIRECCION";
+	gotoxy(110,2); cout<<"CONTACTO";
 
-bool verificaProducto(int cod){
-	ifstream file;
-	file.open("C:/Users/HP INTEL/Documents/1. UMG/algoritmos/Tareas/proyecto/datos/productos.txt");
-	
-	if(file.fail()){
-		cout<<"Error al leer archivo...";
-		exit(1);
+	for(int i = 0; i < contProveedor; i++){
+		gotoxy(40,i+4); cout<<proveedor[i].prov.codigo;
+		gotoxy(55,i+4); cout<<proveedor[i].prov.nombre;
+		gotoxy(76,i+4); cout<<proveedor[i].prov.nit;
+		gotoxy(90,i+4); cout<<proveedor[i].prov.direccion;
+		gotoxy(110,i+4); cout<<proveedor[i].prov.telefono;
 	}
-	
-	while(!file.eof()){
-//		hacer validacion para poder mostrar que el codigo ya existe
-	}
-	
-	file.close();
-	return true;
 }
