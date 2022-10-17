@@ -28,6 +28,18 @@ struct Proveedor{
 	struct Datos prov;
 }proveedor[20];
 
+struct Employee{
+	struct Datos info;
+	int edad;
+	int caja;
+	int identificacion;
+}empleado[20];
+
+struct Cliente{
+	struct Datos info;
+	
+}cliente[20];
+
 using namespace std;
 
 void gotoxy(int x, int y);
@@ -308,5 +320,20 @@ void listaProveedor(){
 		gotoxy(76,i+4); cout<<proveedor[i].prov.nit;
 		gotoxy(90,i+4); cout<<proveedor[i].prov.direccion;
 		gotoxy(110,i+4); cout<<proveedor[i].prov.telefono;
+	}
+}
+
+void busquedaProducto(){
+	char buscar[50];
+	cout<<"Ingrese el nombre del producto a buscar: ";
+	cin.getline(buscar,50,'\n');
+	
+	int i = 0;
+//	bool encontrado = false;
+	
+	while(i < contProducto){
+		if(strcmp(producto[i].info.nombre, buscar) == 0){
+			
+		}
 	}
 }
