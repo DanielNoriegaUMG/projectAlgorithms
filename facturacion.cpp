@@ -5,7 +5,7 @@
 #include <stdlib.h>
 #include <windows.h>
 
-int op,contCliente,contProveedor,contProducto;
+int op,opProv,contCliente,contProveedor,contProducto;
 
 struct Datos{
 	int codigo;
@@ -37,7 +37,6 @@ struct Employee{
 
 struct Cliente{
 	struct Datos info;
-	
 }cliente[20];
 
 using namespace std;
@@ -45,9 +44,11 @@ using namespace std;
 void gotoxy(int x, int y);
 void formato();
 void home();
-bool verificaProducto(int cod);
+//bool verificaProducto(int cod);
 void menuProductos();
 void menuProveedor();
+void sinProveedor();
+bool validaProducto(int cod);
 void registroProducto();
 void listaProductos();
 void listaProveedor();
@@ -239,30 +240,77 @@ void menuProveedor(){
 }
 
 void registroProducto(){
-	cout<<"CODIGO: ";
-	cin>>producto[contProducto].info.codigo;
-	fflush(stdin);
-	cout<<"NOMBRE PRODUCTO: ";
-	cin.getline(producto[contProducto].info.nombre,50,'\n');
-	fflush(stdin);
-	cout<<"DESCRIPCION: ";
-	cin.getline(producto[contProducto].description,60,'\n');
-	fflush(stdin);
-	cout<<"CANTIDAD: ";
-	cin>>producto[contProducto].quantity;
-	fflush(stdin);
-	cout<<"PRECIO (UNIDAD): Q ";
-	cin>>producto[contProducto].price;
-	fflush(stdin);
-	cout<<"PESO: ";
-	cin>>producto[contProducto].peso;
-	fflush(stdin);
-	
-	//Pasar nombre y descripcion de producto a minusculas
-	strlwr(producto[contProducto].info.nombre);
-	strlwr(producto[contProducto].description);
-	
-	contProducto++; //contador de productos
+	if(contProveedor < 1){
+		opProv = 0;
+		while(opProv < 1 || opProv > 2){
+			sinProveedor();
+		}
+	}else{
+		cout<<"CODIGO: ";
+		cin>>producto[contProducto].info.codigo;
+		if(validaProducto(producto[contProducto].info.codigo)){
+			cout<<"El codigo que ingreso ya esta en uso por otro producto...";
+			getch();
+			while(validaProducto(producto[contProducto].info.codigo)){
+				system("cls");
+				cout<<"NUEVO CODIGO: ";
+				cin>>producto[contProducto].info.codigo;
+			}
+		}else{
+			cout<<"NOMBRE PRODUCTO: ";
+			cin.getline(producto[contProducto].info.nombre,50,'\n');
+			fflush(stdin);
+			cout<<"DESCRIPCION: ";
+			cin.getline(producto[contProducto].description,60,'\n');
+			fflush(stdin);
+			cout<<"CANTIDAD: ";
+			cin>>producto[contProducto].quantity;
+			fflush(stdin);
+			cout<<"PRECIO (UNIDAD): Q ";
+			cin>>producto[contProducto].price;
+			fflush(stdin);
+			cout<<"PESO: ";
+			cin>>producto[contProducto].peso;
+			fflush(stdin);
+			
+			//Pasar nombre y descripcion de producto a minusculas
+			strlwr(producto[contProducto].info.nombre);
+			strlwr(producto[contProducto].description);
+			
+			contProducto++; //contador de productos		
+		}
+	}
+}
+
+void sinProveedor(){
+	cout<<"Primero se debe ingresar el proveedor para poder ingresar un producto..."<<endl;
+	cout<<"Desea ingresar un proveedor ahora?"<<endl;
+	cout<<"1. Si"<<endl;
+	cout<<"2. No"<<endl;
+	cout<<"Digite una opcion: ";
+	cin>>opProv;
+	switch(opProv){
+		case 1:
+			system("cls");
+			registroProveedor();
+		break;
+		case 2:
+			system("cls");
+			menuProductos();
+		break;
+		default:
+			cout<<"Opcion invalida...";
+			getch();
+			system("cls");
+	}
+}
+
+bool validaProducto(int cod){
+	int i = 0;
+	while(i < contProducto){
+		if(cod == producto[i].info.codigo) return true;
+	}
+	return false;
 }
 
 void registroProveedor(){
