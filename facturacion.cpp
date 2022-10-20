@@ -5,7 +5,7 @@
 #include <stdlib.h>
 #include <windows.h>
 
-int op,opProv,contCliente,contProveedor,contProducto;
+int op, opProv, contCliente, contProveedor, contProducto, contEmpleado;
 
 struct Datos{
 	int codigo;
@@ -30,9 +30,9 @@ struct Proveedor{
 
 struct Employee{
 	struct Datos info;
+	char apellido[50];
 	int edad;
 	int caja;
-	int identificacion;
 }empleado[20];
 
 struct Cliente{
@@ -42,19 +42,28 @@ struct Cliente{
 using namespace std;
 
 void gotoxy(int x, int y);
+//-------------- INICIO ------------------
 void formato();
 void home();
+
+//-------------- PRODUCTOS ------------------
 bool validaProducto(int cod);
 void busquedaProducto();
 void menuProductos();
-void menuProveedor();
-void sinProveedor();
-void registroProducto();
 void listaProductos();
+
+//-------------- PROVEEDOR ------------------
+void menuProveedor();
+void sinProveedor(); // se llama en caso registren un producto y no existan proveedores
+void registroProducto();
 void listaProveedor();
 void registroProveedor();
-void insertArticle();
-void insertProvider();
+
+//-------------- EMPLEADO ------------------
+void menuEmployee();
+bool validaCaja(int x);
+void registroEmpleado();
+void listaEmpleado();
 
 main(){
 	system("cls");
@@ -117,8 +126,8 @@ void home(){
 			menuProveedor();
 		break;
 		case 3:
-//			system("cls");
-//			menuEmployee();
+			system("cls");
+			menuEmployee();
 		break;
 		case 4:
 //			system("cls");
@@ -239,6 +248,95 @@ void menuProveedor(){
 			system("cls");
 	}
 	
+}
+
+void menuEmployee(){
+	system("cls");
+	formato();
+	gotoxy(57,16); cout<<"1. NUEVO EMPLEADO";
+	gotoxy(57,17); cout<<"2. ELIMINAR EMPLEADO";
+	gotoxy(57,18); cout<<"3. MODIFICAR EMPLEADO";
+	gotoxy(57,19); cout<<"4. BUSCAR EMPLEADO";
+	gotoxy(57,20); cout<<"5. LISTA DE EMPLEADOS";
+	gotoxy(57,21); cout<<"6. ATRAS";
+	gotoxy(57,23); cout<<"Digite una opcion: ";
+	gotoxy(76,23); cin>>op;
+	fflush(stdin);
+	switch(op){
+		case 1:
+			system("cls");
+			registroEmpleado();
+			menuEmployee();
+		break;
+		case 2:
+			system("cls");
+//			eliminarProducto();
+//			menuProductos();
+		break;
+		case 3:
+			getch();
+//			menuProductos();
+		break;
+		case 4:
+			system("cls");
+//			busquedaProducto();
+			getch();
+//			menuProductos();
+		break;
+		case 5:
+			system("cls");
+			listaEmpleado();
+			getch();
+			menuEmployee();
+		break;
+		case 6:
+			system("cls");
+			home();
+		break;
+		default:
+			gotoxy(57,25); cout<<"Opcion invalida vuelve a intentarlo...";
+			getch();
+			system("cls");
+	}
+}
+
+void registroEmpleado(){
+	int num;
+	
+	cout<<"NOMBRE: ";
+	cin.getline(empleado[contEmpleado].info.nombre,50,'\n');
+	fflush(stdin);
+	cout<<"APELLIDO: ";
+	cin.getline(empleado[contEmpleado].apellido,50,'\n');
+	fflush(stdin);
+	cout<<"DIRECCION: ";
+	cin.getline(empleado[contEmpleado].info.direccion,100,'\n');
+	fflush(stdin);
+	cout<<"Edad: ";
+	cin>>empleado[contEmpleado].edad;
+	cout<<"No. de caja: ";
+	cin>>num;
+	while(validaCaja(num)){
+		cout<<"Ese numero de caja ya esta ocupado..."<<endl;
+		cout<<"No de caja: ";
+		cin>>num;
+		fflush(stdin);
+	}
+	empleado[contEmpleado].caja = num;
+	
+	//Pasar nombre y descripcion de producto a minusculas
+	strlwr(empleado[contEmpleado].info.nombre);
+	strlwr(empleado[contEmpleado].apellido);
+	
+	empleado[contEmpleado].info.codigo = contEmpleado;
+	contEmpleado++; //contador de productos
+}
+
+bool validaCaja(int x){
+	for(int i = 0 ; i < contEmpleado; i++){
+		if(x == empleado[i].caja) return true;
+	}
+	return false;
 }
 
 void registroProducto(){
@@ -373,6 +471,24 @@ void listaProveedor(){
 		gotoxy(76,i+4); cout<<proveedor[i].prov.nit;
 		gotoxy(90,i+4); cout<<proveedor[i].prov.direccion;
 		gotoxy(110,i+4); cout<<proveedor[i].prov.telefono;
+	}
+}
+
+void listaEmpleado(){
+	gotoxy(30,2); cout<<"CODIGO";
+	gotoxy(45,2); cout<<"NOMBRES";
+	gotoxy(70,2); cout<<"APELLIDOS";
+	gotoxy(90,2); cout<<"DIRECCION";
+	gotoxy(120,2); cout<<"EDAD";
+	gotoxy(135,2); cout<<"CAJA";
+
+	for(int i = 0; i < contEmpleado; i++){
+		gotoxy(30,i+4); cout<<empleado[i].info.codigo;
+		gotoxy(45,i+4); cout<<empleado[i].info.nombre;
+		gotoxy(70,i+4); cout<<empleado[i].apellido;
+		gotoxy(90,i+4); cout<<empleado[i].info.direccion;
+		gotoxy(120,i+4); cout<<empleado[i].edad;
+		gotoxy(135,i+4); cout<<empleado[i].caja;
 	}
 }
 
