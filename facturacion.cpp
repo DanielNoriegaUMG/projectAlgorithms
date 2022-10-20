@@ -22,7 +22,7 @@ struct Productos{
 	float price;
 	float peso;
 	float total;
-}producto[20];
+}producto[20], filtrado[20];
 
 struct Proveedor{
 	struct Datos prov;
@@ -45,6 +45,7 @@ void gotoxy(int x, int y);
 void formato();
 void home();
 bool validaProducto(int cod);
+void busquedaProducto();
 void menuProductos();
 void menuProveedor();
 void sinProveedor();
@@ -168,6 +169,8 @@ void menuProductos(){
 			menuProductos();
 		break;
 		case 4:
+			system("cls");
+			busquedaProducto();
 			getch();
 			menuProductos();
 		break;
@@ -374,16 +377,31 @@ void listaProveedor(){
 }
 
 void busquedaProducto(){
+	
+	int resultados = 0;
+	int i = 0;
 	char buscar[50];
+	fflush(stdin);
 	cout<<"Ingrese el nombre del producto a buscar: ";
 	cin.getline(buscar,50,'\n');
-	
-	int i = 0;
-//	bool encontrado = false;
-	
-	while(i < contProducto){
-		if(strcmp(producto[i].info.nombre, buscar) == 0){
-			
+	fflush(stdin);
+
+	for(int i = 0; i < contProducto; i++){
+		if(strcmp(buscar,producto[i].info.nombre) == 0){
+			filtrado[i].info.codigo = producto[i].info.codigo;
+			strcpy(filtrado[i].info.nombre, producto[i].info.nombre);
+			strcpy(filtrado[i].description, producto[i].description);
+			filtrado[i].price = producto[i].price;
+			filtrado[i].quantity = producto[i].quantity;
+			resultados++;
 		}
+	}
+	
+	if(resultados > 0){
+		for(int res = 0; res < resultados; res++){
+			cout<<"\n Codigo: "<<filtrado[res].info.codigo<<"\nProducto: "<<filtrado[res].info.nombre<<"\n Descripcion: "<<filtrado[res].description<<"\n Cantidad: "<<filtrado[res].quantity<<"\n Precio: "<<filtrado[res].price<<endl;
+		}
+	}else{
+		cout<<"no se encontraron resultados...";
 	}
 }
