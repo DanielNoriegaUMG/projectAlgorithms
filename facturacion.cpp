@@ -62,6 +62,7 @@ void registroProveedor();
 //-------------- EMPLEADO ------------------
 void menuEmployee();
 bool validaCaja(int x);
+bool validaNombres(Employee);
 void registroEmpleado();
 void listaEmpleado();
 
@@ -309,33 +310,53 @@ void registroEmpleado(){
 	cout<<"APELLIDO: ";
 	cin.getline(empleado[contEmpleado].apellido,50,'\n');
 	fflush(stdin);
-	cout<<"DIRECCION: ";
-	cin.getline(empleado[contEmpleado].info.direccion,100,'\n');
-	fflush(stdin);
-	cout<<"Edad: ";
-	cin>>empleado[contEmpleado].edad;
-	cout<<"No. de caja: ";
-	cin>>num;
-	while(validaCaja(num)){
-		cout<<"Ese numero de caja ya esta ocupado..."<<endl;
-		cout<<"No de caja: ";
-		cin>>num;
+	
+	// revisar que no exista el empleado
+	if(validaNombres(empleado[contEmpleado])){
+		cout<<"Este empleado ya existe...";
+		memset(empleado[contEmpleado].info.nombre,0,50); // vaciar memoria de variables
+		memset(empleado[contEmpleado].apellido,0,50); // vaciar memoria de variables
+		getch();
+	}else{
+		cout<<"DIRECCION: ";
+		cin.getline(empleado[contEmpleado].info.direccion,100,'\n');
 		fflush(stdin);
+		cout<<"Edad: ";
+		cin>>empleado[contEmpleado].edad;
+		cout<<"No. de caja: ";
+		cin>>num;
+		
+		while(validaCaja(num)){
+			cout<<"Ese numero de caja ya esta ocupado..."<<endl;
+			cout<<"No de caja: ";
+			cin>>num;
+			fflush(stdin);
+		}
+		empleado[contEmpleado].caja = num;
+		//Pasar nombre y apellido de empleados a minusculas
+		strlwr(empleado[contEmpleado].info.nombre);
+		strlwr(empleado[contEmpleado].apellido);
+		
+		empleado[contEmpleado].info.codigo = contEmpleado;
+		contEmpleado++; //contador de empleados
 	}
-	empleado[contEmpleado].caja = num;
-	
-	//Pasar nombre y descripcion de producto a minusculas
-	strlwr(empleado[contEmpleado].info.nombre);
-	strlwr(empleado[contEmpleado].apellido);
-	
-	empleado[contEmpleado].info.codigo = contEmpleado;
-	contEmpleado++; //contador de productos
 }
 
 bool validaCaja(int x){
 	for(int i = 0 ; i < contEmpleado; i++){
 		if(x == empleado[i].caja) return true;
 	}
+	return false;
+}
+
+bool validaNombres(Employee e){
+	for(int i = 0; i < contEmpleado; i++){
+		if(strcmp(e.info.nombre, empleado[i].info.nombre) == 0 && strcmp(e.apellido, empleado[i].apellido) == 0){
+			return true;
+		}
+	}
+//	cout<<e.info.nombre<<endl;
+//	cout<<e.apellido;
 	return false;
 }
 
