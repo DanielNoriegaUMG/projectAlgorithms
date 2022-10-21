@@ -49,8 +49,11 @@ void home();
 //-------------- PRODUCTOS ------------------
 bool validaProducto(int cod);
 void busquedaProducto();
+void getModificarProducto(Productos p, int posicion);
+void submenuModificarProducto(int opcion,Productos p,int posicion);
 void menuProductos();
 void listaProductos();
+void modificarProducto();
 
 //-------------- PROVEEDOR ------------------
 void menuProveedor();
@@ -61,6 +64,8 @@ void registroProveedor();
 
 //-------------- EMPLEADO ------------------
 void menuEmployee();
+void submenuBusquedaEmpleado(int opcion);
+void busquedaEmpleado();
 bool validaCaja(int x);
 bool validaNombres(Employee);
 void registroEmpleado();
@@ -106,7 +111,7 @@ void formato(){
 
 void home(){
 	formato();
-	gotoxy(80,14); cout<<"MENU";
+	gotoxy(63,14); cout<<"SISTEMA DE FACTURACION \"EL DUENDE\"";
 	gotoxy(57,16); cout<<"1. Articulos";
 	gotoxy(57,17); cout<<"2. Proveedores";
 	gotoxy(57,18); cout<<"3. Empleados";
@@ -144,7 +149,8 @@ void home(){
 		break;	
 		case 7:
 			gotoxy(57,25); cout<<"Saliendo del sistema...";
-			break;
+			exit(1);
+		break;
 		default:
 			gotoxy(57,25); cout<<"Opcion invalida, vuelve a intantarlo...";
 			getch();
@@ -153,6 +159,7 @@ void home(){
 }
 
 void menuProductos(){
+	int opcion = 0;
 	system("cls");
 	formato();
 	gotoxy(57,16); cout<<"1. NUEVO ARTICULO";
@@ -162,8 +169,8 @@ void menuProductos(){
 	gotoxy(57,20); cout<<"5. LISTADO DE ARTICULOS";
 	gotoxy(57,21); cout<<"6. ATRAS";
 	gotoxy(57,23); cout<<"Digite una opcion: ";
-	gotoxy(76,23); cin>>op;
-	switch(op){
+	gotoxy(76,23); cin>>opcion;
+	switch(opcion){
 		case 1:
 			system("cls");
 			registroProducto();
@@ -175,7 +182,8 @@ void menuProductos(){
 			menuProductos();
 		break;
 		case 3:
-			getch();
+			system("cls");
+			modificarProducto();
 			menuProductos();
 		break;
 		case 4:
@@ -199,7 +207,6 @@ void menuProductos(){
 			getch();
 			system("cls");
 	}
-	
 }
 
 void menuProveedor(){
@@ -212,8 +219,8 @@ void menuProveedor(){
 	gotoxy(57,20); cout<<"5. LISTADO DE PROVEEDORES";
 	gotoxy(57,21); cout<<"6. ATRAS";
 	gotoxy(57,23); cout<<"Digite una opcion: ";
-	gotoxy(76,23); cin>>op;
-	switch(op){
+	gotoxy(76,23); cin>>opProv;
+	switch(opProv){
 		case 1:
 			system("cls");
 			registroProveedor();
@@ -247,11 +254,13 @@ void menuProveedor(){
 			gotoxy(57,25); cout<<"Opcion invalida vuelve a intentarlo...";
 			getch();
 			system("cls");
+			menuProveedor();
 	}
 	
 }
 
 void menuEmployee(){
+	int opcion = 0;
 	system("cls");
 	formato();
 	gotoxy(57,16); cout<<"1. NUEVO EMPLEADO";
@@ -261,9 +270,9 @@ void menuEmployee(){
 	gotoxy(57,20); cout<<"5. LISTA DE EMPLEADOS";
 	gotoxy(57,21); cout<<"6. ATRAS";
 	gotoxy(57,23); cout<<"Digite una opcion: ";
-	gotoxy(76,23); cin>>op;
+	gotoxy(76,23); cin>>opcion;
 	fflush(stdin);
-	switch(op){
+	switch(opcion){
 		case 1:
 			system("cls");
 			registroEmpleado();
@@ -280,9 +289,9 @@ void menuEmployee(){
 		break;
 		case 4:
 			system("cls");
-//			busquedaProducto();
+			busquedaEmpleado();
 			getch();
-//			menuProductos();
+			menuEmployee();
 		break;
 		case 5:
 			system("cls");
@@ -414,6 +423,91 @@ bool validaProducto(int cod){
 	return false;
 }
 
+void modificarProducto(){
+	int update, posicion;
+	int opcion = 0;
+
+	cout<<"EDITAR PRODUCTO"<<endl;
+	cout<<"Ingrese el codigo del producto: ";
+	cin>>update;
+
+	if(validaProducto(update)){
+		while(opcion != 2){
+			cout<<"Los datos guardados son: ";
+			gotoxy(3,5); cout<<"CODIGO";
+			gotoxy(18,5); cout<<"PRODUCTO";
+			gotoxy(70,5); cout<<"DESCRIPCION";
+			gotoxy(120,5); cout<<"CANTIDAD";
+			gotoxy(145,5); cout<<"PRECIO";
+			gotoxy(160,5); cout<<"PESO";
+			
+			for(int i = 0; i < contProducto; i++){
+				if(producto[i].info.codigo == update){
+					gotoxy(3,7); cout<<producto[i].info.codigo;
+					gotoxy(18,7); cout<<producto[i].info.nombre;
+					gotoxy(70,7); cout<<producto[i].description;
+					gotoxy(120,7); cout<<producto[i].quantity;
+					gotoxy(145,7); cout<<producto[i].price;
+					gotoxy(160,7); cout<<producto[i].peso;
+					posicion = i;
+				}
+			}
+			gotoxy(1,9); cout<<"Esta seguro de editar estos datos?";
+			gotoxy(1,10); cout<<"1. Si";
+			gotoxy(1,11); cout<<"2. No";
+			gotoxy(1,13); cout<<"Digite una opcion: ";
+			gotoxy(20,13); cin>>opcion;
+			fflush(stdin);
+			submenuModificarProducto(opcion, producto[posicion], posicion);
+		}
+	}else cout<<"Ninguna coincidencia...";
+}
+
+void submenuModificarProducto(int opcion,Productos p,int posicion){
+	switch(opcion){
+		case 1:
+			system("cls");
+			getModificarProducto(p, posicion);
+			getch();
+			menuProductos();
+		break;
+		case 2:
+			
+		break;
+		case 3:
+			
+		break;
+		default:
+			cout<<"Opcion no valida, intente de nuevo...";
+			getch();
+			system("cls");
+	}
+}
+
+void getModificarProducto(Productos p, int posicion){
+	memset(p.info.nombre, 0, 50); // liberar memoria
+	memset(p.description, 0, 100); // liberar memoria
+	p.price = 0;
+	p.quantity = 0;
+	p.peso = 0;
+	
+	cout<<"NUEVO NOMBRE DEL PRODUCTO: ";
+	cin.getline(producto[posicion].info.nombre,50,'\n');
+	cout<<"NUEVA DESCRIPCION DEL PRODUCTO: ";
+	cin.getline(producto[posicion].description,100,'\n');
+	cout<<"NUEVA CANTIDAD: ";
+	cin>>producto[posicion].quantity;
+	cout<<"NUEVO PRECIO: ";
+	cin>>producto[posicion].price;
+	cout<<"NUEVO PESO: ";
+	cin>>producto[posicion].peso;
+	Sleep(500);
+	cout<<"Espere..."<<endl;
+	Sleep(1200);
+	cout<<"Actulizando datos..."<<endl;
+	cout<<"Se han actualizado los datos correctamente!";
+}
+
 void sinProveedor(){
 	cout<<"Primero se debe ingresar el proveedor para poder ingresar un producto..."<<endl;
 	cout<<"Desea ingresar un proveedor ahora?"<<endl;
@@ -465,7 +559,7 @@ void listaProductos(){
 	gotoxy(3,2); cout<<"CODIGO";
 	gotoxy(18,2); cout<<"PRODUCTO";
 	gotoxy(70,2); cout<<"DESCRIPCION";
-	gotoxy(120,2); cout<<"CANTIDAD";
+	gotoxy(130,2); cout<<"CANTIDAD";
 	gotoxy(145,2); cout<<"PRECIO";
 	gotoxy(160,2); cout<<"PESO";
 
@@ -473,7 +567,7 @@ void listaProductos(){
 		gotoxy(3,i+4); cout<<producto[i].info.codigo;
 		gotoxy(18,i+4); cout<<producto[i].info.nombre;
 		gotoxy(70,i+4); cout<<producto[i].description;
-		gotoxy(120,i+4); cout<<producto[i].quantity;
+		gotoxy(130,i+4); cout<<producto[i].quantity;
 		gotoxy(145,i+4); cout<<producto[i].price;
 		gotoxy(160,i+4); cout<<producto[i].peso;
 	}
@@ -514,10 +608,10 @@ void listaEmpleado(){
 }
 
 void busquedaProducto(){
-	
 	int resultados = 0;
 	int i = 0;
 	char buscar[50];
+	memset(buscar,0,50);
 	fflush(stdin);
 	cout<<"Ingrese el nombre del producto a buscar: ";
 	cin.getline(buscar,50,'\n');
@@ -541,4 +635,63 @@ void busquedaProducto(){
 	}else{
 		cout<<"no se encontraron resultados...";
 	}
+}
+
+void busquedaEmpleado(){
+	int opcion = 0;
+	int resultados = 0;
+	int i = 0;
+	char buscar[50];
+	fflush(stdin);
+	while(opcion != 4){
+		formato();
+		gotoxy(57,16); cout<<"1. BUSCAR POR NOMBRE";
+		gotoxy(57,17); cout<<"2. BUSCAR POR APELLIDO";
+		gotoxy(57,18); cout<<"3. BUSCAR POR CODIGO";
+		gotoxy(57,19); cout<<"4. ATRAS";
+		gotoxy(57,23); cout<<"Digite una opcion: ";
+		gotoxy(76,23); cin>>opcion;
+
+		submenuBusquedaEmpleado(opcion);
+	}
+}
+
+void submenuBusquedaEmpleado(int opcion){
+	switch(opcion){
+			case 1:
+				system("cls");
+//				buscarEmpleadoNombre();
+				getch();
+			break;
+			case 2:
+				system("cls");
+				cout<<"Opcion 2";
+				getch();
+			break;
+			case 3:
+				system("cls");
+				cout<<"Opcion 3";
+				getch();
+			break;
+			case 4:
+				system("cls");
+				menuEmployee();
+			break;
+			default:
+				gotoxy(57,25); cout<<"Opcion invalida vuelve a intentarlo...";
+				getch();
+				system("cls");
+		}
+}
+
+void buscarEmpleadoNombre(){
+	
+}
+
+void buscarEmpleadoApellido(){
+	
+}
+
+void buscarEmpleadoCodigo(){
+	
 }
