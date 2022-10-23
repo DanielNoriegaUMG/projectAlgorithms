@@ -52,14 +52,15 @@ void busquedaProducto();
 void getModificarProducto(Productos p, int posicion);
 void submenuModificarProducto(int opcion,Productos p,int posicion);
 void menuProductos();
+void registroProducto();
 void listaProductos();
 void modificarProducto();
 
 //-------------- PROVEEDOR ------------------
 void menuProveedor();
 void sinProveedor(); // se llama en caso registren un producto y no existan proveedores
-void registroProducto();
 void listaProveedor();
+bool validaProveedor(Proveedor p);
 void registroProveedor();
 
 //-------------- EMPLEADO ------------------
@@ -137,15 +138,15 @@ void home(){
 		break;
 		case 4:
 //			system("cls");
-//			menuClient();
+//			menuClient(); PENDIENTEEEEEEE
 		break;
 		case 5:
 //			system("cls");
-//			menuFactu();
+//			menuFactu(); PENDIENTEEEEEE
 		break;
 		case 6:
 //			system("cls");
-//			menuReport();
+//			menuReport(); PENDIENTEEEEEE
 		break;	
 		case 7:
 			gotoxy(57,25); cout<<"Saliendo del sistema...";
@@ -178,7 +179,7 @@ void menuProductos(){
 		break;
 		case 2:
 			system("cls");
-//			eliminarProducto();
+//			eliminarProducto(); PENDIENTEEEEEE
 			menuProductos();
 		break;
 		case 3:
@@ -281,11 +282,11 @@ void menuEmployee(){
 		case 2:
 			system("cls");
 //			eliminarProducto();
-//			menuProductos();
+			menuEmployee();
 		break;
 		case 3:
 			getch();
-//			menuProductos();
+			menuEmployee();
 		break;
 		case 4:
 			system("cls");
@@ -364,8 +365,6 @@ bool validaNombres(Employee e){
 			return true;
 		}
 	}
-//	cout<<e.info.nombre<<endl;
-//	cout<<e.apellido;
 	return false;
 }
 
@@ -469,13 +468,9 @@ void submenuModificarProducto(int opcion,Productos p,int posicion){
 			system("cls");
 			getModificarProducto(p, posicion);
 			getch();
-			menuProductos();
 		break;
 		case 2:
-			
-		break;
-		case 3:
-			
+			// regresa a menu anterior (menuProductos)
 		break;
 		default:
 			cout<<"Opcion no valida, intente de nuevo...";
@@ -497,13 +492,13 @@ void getModificarProducto(Productos p, int posicion){
 	cin.getline(producto[posicion].description,100,'\n');
 	cout<<"NUEVA CANTIDAD: ";
 	cin>>producto[posicion].quantity;
-	cout<<"NUEVO PRECIO: ";
+	cout<<"NUEVO PRECIO: Q ";
 	cin>>producto[posicion].price;
 	cout<<"NUEVO PESO: ";
 	cin>>producto[posicion].peso;
 	Sleep(500);
 	cout<<"Espere..."<<endl;
-	Sleep(1200);
+	Sleep(1000);
 	cout<<"Actulizando datos..."<<endl;
 	cout<<"Se han actualizado los datos correctamente!";
 }
@@ -532,27 +527,41 @@ void sinProveedor(){
 }
 
 void registroProveedor(){
-	cout<<"CODIGO: ";
-	cin>>proveedor[contProveedor].prov.codigo;
+//	cout<<"CODIGO: ";
+//	cin>>proveedor[contProveedor].prov.codigo;
 	fflush(stdin);
 	cout<<"NOMBRE PROVEEDOR: ";
 	cin.getline(proveedor[contProveedor].prov.nombre,50,'\n');
 	fflush(stdin);
-	cout<<"NIT: ";
-	cin>>proveedor[contProveedor].prov.nit;
-	fflush(stdin);
-	cout<<"DIRECCION: ";
-	cin.getline(proveedor[contProveedor].prov.direccion,100,'\n');
-	fflush(stdin);
-	cout<<"TELEFONO: ";
-	cin>>proveedor[contProveedor].prov.telefono;
-	fflush(stdin);
-	
-	//Pasar nombre y direccion del proveedor a minusculas
-	strlwr(proveedor[contProveedor].prov.nombre);
-	strlwr(proveedor[contProveedor].prov.direccion);
-	
-	contProveedor++; //contador de proveedores
+	if(validaProveedor(proveedor[contProveedor])){
+		cout<<"El proveedor ya existe!"; //seguir aca
+		memset(proveedor[contProveedor].prov.nombre,0,50);
+		getch();
+	}else{
+		cout<<"NIT: ";
+		cin>>proveedor[contProveedor].prov.nit;
+		fflush(stdin);
+		cout<<"DIRECCION: ";
+		cin.getline(proveedor[contProveedor].prov.direccion,100,'\n');
+		fflush(stdin);
+		cout<<"TELEFONO: ";
+		cin>>proveedor[contProveedor].prov.telefono;
+		fflush(stdin);
+		
+		proveedor[contProveedor].prov.codigo = contProveedor;
+		//Pasar nombre y direccion del proveedor a minusculas
+		strlwr(proveedor[contProveedor].prov.nombre);
+		strlwr(proveedor[contProveedor].prov.direccion);
+		
+		contProveedor++; //contador de proveedores	
+	}
+}
+
+bool validaProveedor(Proveedor p){
+	for(int i = 0; i < contProveedor; i++){
+		if(strcmp(p.prov.nombre, proveedor[i].prov.nombre) == 0) return true;
+	}
+	return false;
 }
 
 void listaProductos(){
