@@ -33,7 +33,7 @@ struct Employee{
 	char apellido[50];
 	int edad;
 	int caja;
-}empleado[20];
+}empleado[20], filtraEmpleado[20];
 
 struct Cliente{
 	struct Datos info;
@@ -58,6 +58,7 @@ void modificarProducto();
 
 //-------------- PROVEEDOR ------------------
 void menuProveedor();
+bool validaNit(int nit,int modulo);
 void sinProveedor(); // se llama en caso registren un producto y no existan proveedores
 void listaProveedor();
 bool validaProveedor(Proveedor p);
@@ -65,7 +66,9 @@ void registroProveedor();
 
 //-------------- EMPLEADO ------------------
 void menuEmployee();
+int resultadosEmpleado(char busqueda);
 void submenuBusquedaEmpleado(int opcion);
+void buscarEmpleadoNombre();
 void busquedaEmpleado();
 bool validaCaja(int x);
 bool validaNombres(Employee);
@@ -527,20 +530,29 @@ void sinProveedor(){
 }
 
 void registroProveedor(){
-//	cout<<"CODIGO: ";
-//	cin>>proveedor[contProveedor].prov.codigo;
+	long int nit;
 	fflush(stdin);
 	cout<<"NOMBRE PROVEEDOR: ";
 	cin.getline(proveedor[contProveedor].prov.nombre,50,'\n');
 	fflush(stdin);
 	if(validaProveedor(proveedor[contProveedor])){
-		cout<<"El proveedor ya existe!"; //seguir aca
+		cout<<"El proveedor ya existe!";
 		memset(proveedor[contProveedor].prov.nombre,0,50);
 		getch();
 	}else{
 		cout<<"NIT: ";
-		cin>>proveedor[contProveedor].prov.nit;
+		cin>>nit;
+//		cin>>proveedor[contProveedor].prov.nit;
 		fflush(stdin);
+		while(validaNit(nit,2)){
+			cout<<"Este nit ya esta en uso";
+			cout<<"Digite nuevo nit: ";
+			cin>>nit;
+			fflush(stdin);
+		}
+		
+		proveedor[contProveedor].prov.nit = nit;
+		
 		cout<<"DIRECCION: ";
 		cin.getline(proveedor[contProveedor].prov.direccion,100,'\n');
 		fflush(stdin);
@@ -553,13 +565,29 @@ void registroProveedor(){
 		strlwr(proveedor[contProveedor].prov.nombre);
 		strlwr(proveedor[contProveedor].prov.direccion);
 		
-		contProveedor++; //contador de proveedores	
+		contProveedor++; //contador de proveedores		
 	}
 }
 
 bool validaProveedor(Proveedor p){
 	for(int i = 0; i < contProveedor; i++){
 		if(strcmp(p.prov.nombre, proveedor[i].prov.nombre) == 0) return true;
+	}
+	return false;
+}
+
+bool validaNit(int nit, int modulo){
+	if(modulo == 2){ //para buscar nit en proveedores
+		for(int i = 0; i < contProveedor; i++){
+			if(nit == proveedor[i].prov.nit) return true;
+		}
+//		return false;
+	}
+	if(modulo == 1){ // para buscar nit en clientes
+		for(int i = 0; i < contProveedor; i++){
+			if(nit == proveedor[i].prov.nit) return true;
+		}
+//		return false;
 	}
 	return false;
 }
@@ -642,7 +670,7 @@ void busquedaProducto(){
 			cout<<"\n Codigo: "<<filtrado[res].info.codigo<<"\nProducto: "<<filtrado[res].info.nombre<<"\n Descripcion: "<<filtrado[res].description<<"\n Cantidad: "<<filtrado[res].quantity<<"\n Precio: "<<filtrado[res].price<<endl;
 		}
 	}else{
-		cout<<"no se encontraron resultados...";
+		cout<<"No se encontraron resultados...";
 	}
 }
 
@@ -661,6 +689,7 @@ void busquedaEmpleado(){
 		gotoxy(57,23); cout<<"Digite una opcion: ";
 		gotoxy(76,23); cin>>opcion;
 
+		fflush(stdin);
 		submenuBusquedaEmpleado(opcion);
 	}
 }
@@ -669,7 +698,7 @@ void submenuBusquedaEmpleado(int opcion){
 	switch(opcion){
 			case 1:
 				system("cls");
-//				buscarEmpleadoNombre();
+				buscarEmpleadoNombre();
 				getch();
 			break;
 			case 2:
@@ -694,11 +723,51 @@ void submenuBusquedaEmpleado(int opcion){
 }
 
 void buscarEmpleadoNombre(){
+	char nombres[50];
+	formato();
+	gotoxy(57,16); cout<<"Ingrese nombres: ";
+	gotoxy(77,16); cin.getline(nombres,50,'\n');
+
+	system("cls");
+	cout<<"Buscando...";
+	Sleep(600);
+	cout<<"Espere...";
+	Sleep(1000);
+	system("cls");
 	
+	gotoxy(30,2); cout<<"CODIGO";
+	gotoxy(45,2); cout<<"NOMBRES";
+	gotoxy(70,2); cout<<"APELLIDOS";
+	gotoxy(90,2); cout<<"DIRECCION";
+	gotoxy(120,2); cout<<"EDAD";
+	gotoxy(135,2); cout<<"CAJA";
+	
+	for(int i = 0; i < contEmpleado; i++){
+		if(strcmp(nombres, empleado[i].info.nombre) == 0){
+			filtraEmpleado[i].info.codigo = empleado[i].info.codigo;
+			strcpy(filtraEmpleado[i].info.nombre, empleado[i].info.nombre);
+			strcpy(filtraEmpleado[i].apellido, empleado[i].apellido);
+			strcpy(filtraEmpleado[i].info.direccion, empleado[i].info.direccion);
+			filtraEmpleado[i].edad = empleado[i].edad;
+			filtraEmpleado[i].caja = empleado[i].caja;
+			
+			for(int i = 0; i < contEmpleado; i++){
+				gotoxy(30,i+4); cout<<empleado[i].info.codigo;
+				gotoxy(45,i+4); cout<<empleado[i].info.nombre;
+				gotoxy(70,i+4); cout<<empleado[i].apellido;
+				gotoxy(90,i+4); cout<<empleado[i].info.direccion;
+				gotoxy(120,i+4); cout<<empleado[i].edad;
+				gotoxy(135,i+4); cout<<empleado[i].caja;
+			}
+		}
+	}
 }
 
 void buscarEmpleadoApellido(){
-	
+	char apellidos[50];
+	formato();
+	gotoxy(57,16); cout<<"Ingrese apellidos: ";
+	gotoxy(88,16); cin.getline(apellidos,50,'\n');
 }
 
 void buscarEmpleadoCodigo(){
