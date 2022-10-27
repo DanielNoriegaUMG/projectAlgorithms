@@ -48,6 +48,7 @@ void home();
 
 //-------------- PRODUCTOS ------------------
 bool validaProducto(int cod);
+void plantillaProducto();
 void busquedaProducto();
 void getModificarProducto(Productos p, int posicion);
 void submenuModificarProducto(int opcion,Productos p,int posicion);
@@ -58,6 +59,7 @@ void modificarProducto();
 
 //-------------- PROVEEDOR ------------------
 void menuProveedor();
+void plantillaProveedor();
 bool validaNit(int nit,int modulo);
 void sinProveedor(); // se llama en caso registren un producto y no existan proveedores
 void listaProveedor();
@@ -66,14 +68,20 @@ void registroProveedor();
 
 //-------------- EMPLEADO ------------------
 void menuEmployee();
-int resultadosEmpleado(char busqueda);
+void plantillaEmpleado();
 void submenuBusquedaEmpleado(int opcion);
 void buscarEmpleadoNombre();
+void buscarEmpleadoApellido();
+void buscarEmpleadoCodigo();
 void busquedaEmpleado();
 bool validaCaja(int x);
 bool validaNombres(Employee);
 void registroEmpleado();
 void listaEmpleado();
+
+//-------------- FACTURACION ------------------
+void facturacion();
+
 
 main(){
 	system("cls");
@@ -144,8 +152,10 @@ void home(){
 //			menuClient(); PENDIENTEEEEEEE
 		break;
 		case 5:
-//			system("cls");
-//			menuFactu(); PENDIENTEEEEEE
+			system("cls");
+			facturacion();
+			getch();
+			system("cls");
 		break;
 		case 6:
 //			system("cls");
@@ -577,28 +587,22 @@ bool validaProveedor(Proveedor p){
 }
 
 bool validaNit(int nit, int modulo){
-	if(modulo == 2){ //para buscar nit en proveedores
-		for(int i = 0; i < contProveedor; i++){
-			if(nit == proveedor[i].prov.nit) return true;
-		}
-//		return false;
-	}
 	if(modulo == 1){ // para buscar nit en clientes
 		for(int i = 0; i < contProveedor; i++){
 			if(nit == proveedor[i].prov.nit) return true;
 		}
-//		return false;
+	}
+
+	if(modulo == 2){ //para buscar nit en proveedores
+		for(int i = 0; i < contProveedor; i++){
+			if(nit == proveedor[i].prov.nit) return true;
+		}
 	}
 	return false;
 }
 
 void listaProductos(){
-	gotoxy(3,2); cout<<"CODIGO";
-	gotoxy(18,2); cout<<"PRODUCTO";
-	gotoxy(70,2); cout<<"DESCRIPCION";
-	gotoxy(130,2); cout<<"CANTIDAD";
-	gotoxy(145,2); cout<<"PRECIO";
-	gotoxy(160,2); cout<<"PESO";
+	plantillaProducto();
 
 	for(int i = 0; i < contProducto; i++){
 		gotoxy(3,i+4); cout<<producto[i].info.codigo;
@@ -611,11 +615,7 @@ void listaProductos(){
 }
 
 void listaProveedor(){
-	gotoxy(40,2); cout<<"CODIGO";
-	gotoxy(55,2); cout<<"PROVEEDOR";
-	gotoxy(76,2); cout<<"NIT";
-	gotoxy(90,2); cout<<"DIRECCION";
-	gotoxy(110,2); cout<<"CONTACTO";
+	plantillaProveedor();
 
 	for(int i = 0; i < contProveedor; i++){
 		gotoxy(40,i+4); cout<<proveedor[i].prov.codigo;
@@ -700,16 +700,19 @@ void submenuBusquedaEmpleado(int opcion){
 				system("cls");
 				buscarEmpleadoNombre();
 				getch();
+				system("cls");
 			break;
 			case 2:
 				system("cls");
-				cout<<"Opcion 2";
+				buscarEmpleadoApellido();
 				getch();
+				system("cls");
 			break;
 			case 3:
 				system("cls");
-				cout<<"Opcion 3";
+				buscarEmpleadoCodigo();
 				getch();
+				system("cls");
 			break;
 			case 4:
 				system("cls");
@@ -724,12 +727,14 @@ void submenuBusquedaEmpleado(int opcion){
 
 void buscarEmpleadoNombre(){
 	char nombres[50];
+	int pos = 0 ;
 	formato();
 	gotoxy(57,16); cout<<"Ingrese nombres: ";
 	gotoxy(77,16); cin.getline(nombres,50,'\n');
+	fflush(stdin);
 
 	system("cls");
-	cout<<"Buscando...";
+	cout<<"Buscando..."<<endl;
 	Sleep(600);
 	cout<<"Espere...";
 	Sleep(1000);
@@ -744,20 +749,22 @@ void buscarEmpleadoNombre(){
 	
 	for(int i = 0; i < contEmpleado; i++){
 		if(strcmp(nombres, empleado[i].info.nombre) == 0){
-			filtraEmpleado[i].info.codigo = empleado[i].info.codigo;
-			strcpy(filtraEmpleado[i].info.nombre, empleado[i].info.nombre);
-			strcpy(filtraEmpleado[i].apellido, empleado[i].apellido);
-			strcpy(filtraEmpleado[i].info.direccion, empleado[i].info.direccion);
-			filtraEmpleado[i].edad = empleado[i].edad;
-			filtraEmpleado[i].caja = empleado[i].caja;
+			filtraEmpleado[pos].info.codigo = empleado[i].info.codigo;
+			strcpy(filtraEmpleado[pos].info.nombre, empleado[i].info.nombre);
+			strcpy(filtraEmpleado[pos].apellido, empleado[i].apellido);
+			strcpy(filtraEmpleado[pos].info.direccion, empleado[i].info.direccion);
+			filtraEmpleado[pos].edad = empleado[i].edad;
+			filtraEmpleado[pos].caja = empleado[i].caja;
 			
-			for(int i = 0; i < contEmpleado; i++){
-				gotoxy(30,i+4); cout<<empleado[i].info.codigo;
-				gotoxy(45,i+4); cout<<empleado[i].info.nombre;
-				gotoxy(70,i+4); cout<<empleado[i].apellido;
-				gotoxy(90,i+4); cout<<empleado[i].info.direccion;
-				gotoxy(120,i+4); cout<<empleado[i].edad;
-				gotoxy(135,i+4); cout<<empleado[i].caja;
+			pos++;
+			
+			for(int i = 0; i < pos; i++){
+				gotoxy(30,i+4); cout<<filtraEmpleado[i].info.codigo;
+				gotoxy(45,i+4); cout<<filtraEmpleado[i].info.nombre;
+				gotoxy(70,i+4); cout<<filtraEmpleado[i].apellido;
+				gotoxy(90,i+4); cout<<filtraEmpleado[i].info.direccion;
+				gotoxy(120,i+4); cout<<filtraEmpleado[i].edad;
+				gotoxy(135,i+4); cout<<filtraEmpleado[i].caja;
 			}
 		}
 	}
@@ -765,11 +772,133 @@ void buscarEmpleadoNombre(){
 
 void buscarEmpleadoApellido(){
 	char apellidos[50];
+	int pos = 0;
 	formato();
 	gotoxy(57,16); cout<<"Ingrese apellidos: ";
 	gotoxy(88,16); cin.getline(apellidos,50,'\n');
+	fflush(stdin);
+	
+	system("cls");
+	cout<<"Buscando..."<<endl;
+	Sleep(600);
+	cout<<"Espere...";
+	Sleep(1000);
+	system("cls");
+	
+	plantillaEmpleado();
+	
+	for(int i = 0; i < contEmpleado; i++){
+		if(strcmp(apellidos, empleado[i].apellido) == 0){
+			filtraEmpleado[pos].info.codigo = empleado[i].info.codigo;
+			strcpy(filtraEmpleado[pos].info.nombre, empleado[i].info.nombre);
+			strcpy(filtraEmpleado[pos].apellido, empleado[i].apellido);
+			strcpy(filtraEmpleado[pos].info.direccion, empleado[i].info.direccion);
+			filtraEmpleado[pos].edad = empleado[i].edad;
+			filtraEmpleado[pos].caja = empleado[i].caja;
+			
+			pos++;
+			
+			for(int i = 0; i < contEmpleado; i++){
+				gotoxy(30,i+4); cout<<filtraEmpleado[i].info.codigo;
+				gotoxy(45,i+4); cout<<filtraEmpleado[i].info.nombre;
+				gotoxy(70,i+4); cout<<filtraEmpleado[i].apellido;
+				gotoxy(90,i+4); cout<<filtraEmpleado[i].info.direccion;
+				gotoxy(120,i+4); cout<<filtraEmpleado[i].edad;
+				gotoxy(135,i+4); cout<<filtraEmpleado[i].caja;
+			}
+		}
+	}
 }
 
 void buscarEmpleadoCodigo(){
+	int cod;
+	formato();
+	gotoxy(57,16); cout<<"Ingrese codigo de empleado: ";
+	gotoxy(88,16); cin>>cod;
 	
+	system("cls");
+	cout<<"Buscando..."<<endl;
+	Sleep(600);
+	cout<<"Espere...";
+	Sleep(1000);
+	system("cls");
+	
+	plantillaEmpleado();
+	
+	for(int i = 0; i < contEmpleado; i++){
+		if(cod == empleado[i].info.codigo){
+			gotoxy(30,i+4); cout<<empleado[i].info.codigo;
+			gotoxy(45,i+4); cout<<empleado[i].info.nombre;
+			gotoxy(70,i+4); cout<<empleado[i].apellido;
+			gotoxy(90,i+4); cout<<empleado[i].info.direccion;
+			gotoxy(120,i+4); cout<<empleado[i].edad;
+			gotoxy(135,i+4); cout<<empleado[i].caja;
+		}
+	}
+}
+
+void plantillaEmpleado(){
+	gotoxy(30,2); cout<<"CODIGO";
+	gotoxy(45,2); cout<<"NOMBRES";
+	gotoxy(70,2); cout<<"APELLIDOS";
+	gotoxy(90,2); cout<<"DIRECCION";
+	gotoxy(120,2); cout<<"EDAD";
+	gotoxy(135,2); cout<<"CAJA";
+}
+
+void plantillaProveedor(){
+	gotoxy(40,2); cout<<"CODIGO";
+	gotoxy(55,2); cout<<"PROVEEDOR";
+	gotoxy(76,2); cout<<"NIT";
+	gotoxy(90,2); cout<<"DIRECCION";
+	gotoxy(110,2); cout<<"CONTACTO";
+}
+
+void plantillaProducto(){
+	gotoxy(3,2); cout<<"CODIGO";
+	gotoxy(18,2); cout<<"PRODUCTO";
+	gotoxy(70,2); cout<<"DESCRIPCION";
+	gotoxy(130,2); cout<<"CANTIDAD";
+	gotoxy(145,2); cout<<"PRECIO";
+	gotoxy(160,2); cout<<"PESO";
+}
+
+void facturacion(){
+	// formato mostrar productos (izquierda superior)
+	for(int x = 2; x < 50; x++){
+		gotoxy(x,1); cout<<"*";
+		gotoxy(x,3); cout<<"*";
+		gotoxy(x,30); cout<<"*";
+	}
+	for(int y = 2; y < 30; y++){
+		gotoxy(2,y); cout<<"*";
+		gotoxy(49,y); cout<<"*";
+	}
+	gotoxy(14,2); cout<<"PRODUCTOS EN DISPONIBLES";
+	
+	// formato comprar producto (izquierda inferios)
+	for(int x = 2; x < 50; x++){
+		gotoxy(x,33); cout<<"*";
+		gotoxy(x,35); cout<<"*";
+		gotoxy(x,40); cout<<"*";
+	}
+	for(int y = 33; y < 40; y++){
+		gotoxy(2,y); cout<<"*";
+		gotoxy(49,y); cout<<"*";
+	}
+	gotoxy(8,34); cout<<"COMPRA DE SUS PRODUCTOS EN LA TIENDA";
+	gotoxy(3,36); cout<<"Codigo del producto: ";
+	gotoxy(3,37); cout<<"Cantidad de articulos: ";
+	
+	//formato factura (derecha)
+	for(int x = 60; x < 160; x++){
+		gotoxy(x,1); cout<<"*";
+		gotoxy(x,3); cout<<"*";
+		gotoxy(x,40); cout<<"*";
+	}
+	for(int y = 2; y < 40; y++){
+		gotoxy(60,y); cout<<"*";
+		gotoxy(159,y); cout<<"*";
+	}
+	gotoxy(95,2); cout<<"SISTEMA DE FACTURACION \"EL DUENDE\"";
 }
