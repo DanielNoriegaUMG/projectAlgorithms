@@ -95,6 +95,10 @@ void productosTienda();
 void facturacion();
 
 
+//-------------- FACTURACION ------------------
+void facturacion();
+
+
 main(){
 	system("cls");
 	system("color 0F");
@@ -903,7 +907,10 @@ void facturacion(){
 		gotoxy(49,y); cout<<"*";
 	}
 	gotoxy(14,2); cout<<"PRODUCTOS EN DISPONIBLES";
+<<<<<<< HEAD
 	productosTienda();
+=======
+>>>>>>> 4ef57958970a6f620201ea008dcaa1e20293bdf4
 	
 	// formato comprar producto (izquierda inferios)
 	for(int x = 2; x < 50; x++){
@@ -930,6 +937,7 @@ void facturacion(){
 		gotoxy(159,y); cout<<"*";
 	}
 	gotoxy(95,2); cout<<"SISTEMA DE FACTURACION \"EL DUENDE\"";
+<<<<<<< HEAD
 }
 
 void productosTienda(){
@@ -1168,4 +1176,6 @@ void eliminarProductoCodigo(){
 			cout<<"EL CODIGO NO EXISTE";
 			getch();	
 	}
+=======
+>>>>>>> 4ef57958970a6f620201ea008dcaa1e20293bdf4
 }
