@@ -56,6 +56,11 @@ void menuProductos();
 void registroProducto();
 void listaProductos();
 void modificarProducto();
+void eliminarProducto(); //pedro
+ int buscarProdCod(char busquedaProductoNom[50]); //pedro
+ void eliminarProductoCodigo(); //pedro
+
+
 
 //-------------- PROVEEDOR ------------------
 void menuProveedor();
@@ -65,6 +70,9 @@ void sinProveedor(); // se llama en caso registren un producto y no existan prov
 void listaProveedor();
 bool validaProveedor(Proveedor p);
 void registroProveedor();
+void eliminarProveedor(); //pedro
+void buscarProveedorNom(); //pedro
+
 
 //-------------- EMPLEADO ------------------
 void menuEmployee();
@@ -78,8 +86,12 @@ bool validaCaja(int x);
 bool validaNombres(Employee);
 void registroEmpleado();
 void listaEmpleado();
+void buscarEmpleadoNombre(); //pedro 
+void eliminarEmpleado(); //pedro
+
 
 //-------------- FACTURACION ------------------
+void productosTienda();
 void facturacion();
 
 
@@ -133,6 +145,7 @@ void home(){
 	gotoxy(57,22); cout<<"7. Salir";
 	gotoxy(57,23); cout<<"Digite la opcion deseada: ";
 	gotoxy(83,23); cin>>op;
+	fflush(stdin);
 
 	switch(op){
 		case 1:
@@ -184,6 +197,8 @@ void menuProductos(){
 	gotoxy(57,21); cout<<"6. ATRAS";
 	gotoxy(57,23); cout<<"Digite una opcion: ";
 	gotoxy(76,23); cin>>opcion;
+	fflush(stdin);
+	
 	switch(opcion){
 		case 1:
 			system("cls");
@@ -192,7 +207,7 @@ void menuProductos(){
 		break;
 		case 2:
 			system("cls");
-//			eliminarProducto(); PENDIENTEEEEEE
+			eliminarProductoCodigo();
 			menuProductos();
 		break;
 		case 3:
@@ -234,6 +249,8 @@ void menuProveedor(){
 	gotoxy(57,21); cout<<"6. ATRAS";
 	gotoxy(57,23); cout<<"Digite una opcion: ";
 	gotoxy(76,23); cin>>opProv;
+	fflush(stdin);
+	
 	switch(opProv){
 		case 1:
 			system("cls");
@@ -242,16 +259,20 @@ void menuProveedor(){
 		break;
 		case 2:
 			system("cls");
-//			eliminarProducto();
+			eliminarProveedor();
 			getch();
 			menuProveedor();
 		break;
 		case 3:
-			getch();
+			system("cls");
 			menuProveedor();
+			getch();
 		break;
 		case 4:
+			system("cls");
+			buscarProveedorNom();
 			getch();
+			
 			menuProveedor();
 		break;
 		case 5:
@@ -294,7 +315,8 @@ void menuEmployee(){
 		break;
 		case 2:
 			system("cls");
-//			eliminarProducto();
+			eliminarEmpleado();
+			getch;
 			menuEmployee();
 		break;
 		case 3:
@@ -381,12 +403,14 @@ bool validaNombres(Employee e){
 	return false;
 }
 
+// ingreso producto
 void registroProducto(){
 	int newCodigo = 0;
 	
 	if(contProveedor < 1){
 		opProv = 0;
 		while(opProv < 1 || opProv > 2){
+			system("cls");
 			sinProveedor();
 		}
 	}else{
@@ -428,6 +452,7 @@ void registroProducto(){
 	}
 }
 
+// validar el codigo del producto
 bool validaProducto(int cod){
 	for(int i = 0 ; i < contProducto; i++){
 		if(cod == producto[i].info.codigo) return true;
@@ -471,6 +496,7 @@ void modificarProducto(){
 			gotoxy(20,13); cin>>opcion;
 			fflush(stdin);
 			submenuModificarProducto(opcion, producto[posicion], posicion);
+			opcion = 2;
 		}
 	}else cout<<"Ninguna coincidencia...";
 }
@@ -517,12 +543,14 @@ void getModificarProducto(Productos p, int posicion){
 }
 
 void sinProveedor(){
-	cout<<"Primero se debe ingresar el proveedor para poder ingresar un producto..."<<endl;
-	cout<<"Desea ingresar un proveedor ahora?"<<endl;
-	cout<<"1. Si"<<endl;
-	cout<<"2. No"<<endl;
-	cout<<"Digite una opcion: ";
-	cin>>opProv;
+	formato();
+	gotoxy(57,14); cout<<"Primero se debe ingresar el proveedor";
+	gotoxy(57,15); cout<<"para poder ingresar un producto...";
+	gotoxy(57,17); cout<<"Desea ingresar un proveedor ahora?";
+	gotoxy(57,18); cout<<"1. Si";
+	gotoxy(57,19); cout<<"2. No";
+	gotoxy(57,21); cout<<"Digite una opcion: ";
+	gotoxy(76,21); cin>>opProv;
 	switch(opProv){
 		case 1:
 			system("cls");
@@ -875,6 +903,7 @@ void facturacion(){
 		gotoxy(49,y); cout<<"*";
 	}
 	gotoxy(14,2); cout<<"PRODUCTOS EN DISPONIBLES";
+	productosTienda();
 	
 	// formato comprar producto (izquierda inferios)
 	for(int x = 2; x < 50; x++){
@@ -901,4 +930,242 @@ void facturacion(){
 		gotoxy(159,y); cout<<"*";
 	}
 	gotoxy(95,2); cout<<"SISTEMA DE FACTURACION \"EL DUENDE\"";
+}
+
+void productosTienda(){
+	int x = 4;
+	int y = 5;
+	for(int i = 0; i < contProducto; i++){
+		gotoxy(x,y); cout<<i+1<<".";
+		gotoxy(x+3,y); cout<<producto[i].info.nombre;
+		y++;
+	}
+}
+
+              //codigo pedro 
+                          
+//funcion buscar empleado eliminacion
+
+int buscarEmp(char busquedaEmpleado[50]){
+	int i=0;
+	bool encontrado=false;
+	while (encontrado==false && i<contEmpleado){
+		if(strcmp(busquedaEmpleado,empleado[i].info.nombre)==0){
+			encontrado=true;
+		}
+		else{
+			i++;
+		}
+	}
+		if(encontrado==true){
+			return i;
+		}
+		else{
+			return -1;
+	}
+} 
+	
+//funcion buscar proveedor para eliminacion
+
+int buscarProv(char busquedaProveedorNom[50]){
+	int i=0;
+	bool encontrado=false;
+	while (encontrado==false && i<contProveedor){
+		if(strcmp(busquedaProveedorNom,proveedor[i].prov.nombre)==0){
+			encontrado=true;
+		}
+		else{
+			i++;
+		}
+	}
+		if(encontrado==true){
+			return i;
+		}
+		else{
+			return -1;
+	}
+} 
+ // funcion  buscar por nombre para eliminacion de articulos 
+ 
+ int buscarProd(char busquedaProductoNom[50]){
+	int i=0;
+	bool encontrado=false;
+	while (encontrado==false && i<contProducto){
+		if(strcmp(busquedaProductoNom,producto[i].info.nombre)==0){
+			encontrado=true;
+		}
+		else{
+			i++;
+		}
+	}
+		if(encontrado==true){
+			return i;
+		}
+		else{
+			return -1;
+	}
+
+}
+
+                          
+   //buscar proveedor
+
+void buscarProveedorNom(){
+	
+	char eliminarProveedor[50];
+	
+	formato();
+	gotoxy(70,14); cout<<"BUSQUEDA DE PROVEEDOR ";
+	gotoxy(57,16); cout<<"Ingrese el nombre a buscar: ";
+	gotoxy(84,16); cin.getline(eliminarProveedor,50,'\n');
+	int pos=buscarProv(eliminarProveedor);
+	
+	if(pos==-1 ){
+		system("cls");
+		formato();
+		gotoxy(68,20); cout<<"EL PROVEEDOR NO EXISTE ";
+		getch;
+	}else{
+		system("cls");
+		plantillaProveedor();
+		
+		gotoxy(40,4); cout<<proveedor[pos].prov.codigo;
+		gotoxy(55,4); cout<<proveedor[pos].prov.nombre;
+		gotoxy(76,4); cout<<proveedor[pos].prov.nit;
+		gotoxy(90,4); cout<<proveedor[pos].prov.direccion;
+		gotoxy(110,4); cout<<proveedor[pos].prov.telefono;
+	}
+}  
+
+
+
+//eliminar registros empleado
+
+void eliminarEmpleado(){
+	
+	char nombre[50];
+	cout<<" Ingrese los datos solicitados para la eliminacion del empleado  "<<endl;
+	cout<<"Nombre: ";
+	cin.getline(nombre,50,'\n');
+	int pos=buscarEmp(nombre);
+	if(pos==-1){
+		cout<<" EL EMPLEADO NO EXISTE ";
+	}
+	else{
+		
+		for (int i=pos; i<contEmpleado; i++){
+			
+			empleado[i]=empleado[i+1];
+			
+			/*strcpy(empleado[i].info.nombre,empleado[i+1].info.nombre);
+			strcpy(empleado[i].apellido,empleado[i+1].apellido);
+			strcpy(empleado[i].info.direccion,empleado[i+1].info.direccion);
+			empleado[i].edad = empleado[i+1].edad;
+			empleado[i].caja = empleado[i+1].caja;
+			*/
+		}
+			contEmpleado--;	
+			cout<<"EMPLEADO ELIMINADO";
+			getch;
+		
+		}
+	}
+	
+//eliminar proveedor
+void eliminarProveedor(){
+	
+	char nombre[50];
+	cout<<" INGRESE LOS DATOS SOLICITADOS PARA LA ELIMINACION DEL PROVEEDOR  "<<endl;
+	cout<<"NOMBRE: ";
+	cin.getline(nombre,50,'\n');
+	int pos=buscarProv(nombre);
+	if(pos==-1){
+		cout<<" EL EMPLEADO NO EXISTE ";
+	}
+	else{
+		
+		for (int i=pos; i<contProveedor; i++){
+			strcpy(proveedor[i].prov.nombre,proveedor[i+1].prov.nombre);
+			strcpy(proveedor[i].prov.direccion,proveedor[i+1].prov.direccion);
+			proveedor[i].prov.codigo = proveedor[i+1].prov.codigo;
+			proveedor[i].prov.nit = proveedor[i+1].prov.nit;
+			proveedor[i].prov.telefono = proveedor[i+1].prov.telefono;
+
+		}
+			contProveedor--;	
+			cout<<"EMPLEADO ELIMINADO";
+			getch();
+			
+		
+		}
+	}
+	
+//eliminar producto  por nombre
+void eliminarProducto(){
+	
+	char nombre[50];
+	cout<<" INGRESE LOS DATOS SOLICITADOS PARA LA ELIMINACION DEL PRODUCTO  "<<endl;
+	cout<<"NOMBRE: ";
+	cin.getline(nombre,50,'\n');
+	int pos=buscarProd(nombre);
+	if(pos==-1){
+		cout<<" EL PRODUCTO NO EXISTE ";
+	}
+	else{
+		
+		for (int i=pos; i<contProducto; i++){
+		
+			strcpy(producto[i].info.nombre,producto[i+1].info.nombre );
+			strcpy(producto[i].description,producto[i+1].description);
+			producto[i].info.codigo = producto[i+1].info.codigo;
+			producto[i].price =producto[i+1].price;
+			producto[i].quantity =producto[i+1].quantity;
+			producto[i].peso =producto[i+1].peso;
+			
+
+		}
+			contProducto--;	
+			cout<<"EL PRODUCTO SE ELIMINO CON EXITO ";
+			getch();
+			
+		
+		}
+	}
+	
+	
+//eliminar producto  por codigo
+void eliminarProductoCodigo(){
+	
+	bool cambio=false;
+	int num;
+
+	cout<<" INGRESE LOS DATOS SOLICITADOS PARA LA ELIMINACION DEL PRODUCTO  "<<endl;
+	cout<<"codigo: ";
+	cin>>num;
+
+		for(int i=0; i<contProducto; i++ ){
+	
+		
+		if(num==producto[i].info.codigo){
+			cambio=true;
+			strcpy(producto[i].info.nombre,producto[i+1].info.nombre );
+			strcpy(producto[i].description,producto[i+1].description);
+			producto[i].info.codigo = producto[i+1].info.codigo;
+			producto[i].price =producto[i+1].price;
+			producto[i].quantity =producto[i+1].quantity;
+			producto[i].peso =producto[i+1].peso;
+			
+			contProducto--;		
+		}
+		
+		}
+		if(cambio==true){
+		   	cout<<"EL PRODUCTO SE ELIMINO CON EXITO ";
+			getch();
+		
+		}
+		else{
+			cout<<"EL CODIGO NO EXISTE";
+			getch();	
+	}
 }
