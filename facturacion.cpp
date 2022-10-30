@@ -22,6 +22,7 @@ struct Productos{
 	float price;
 	float peso;
 	float total;
+	int unidades;
 }producto[20], filtrado[20];
 
 struct Proveedor{
@@ -91,6 +92,7 @@ void eliminarEmpleado(); //pedro
 
 
 //-------------- FACTURACION ------------------
+void formatoFactura();
 void productosTienda();
 void facturacion();
 
@@ -443,6 +445,10 @@ void registroProducto(){
 		cout<<"PESO: ";
 		cin>>producto[contProducto].peso;
 		fflush(stdin);
+		
+		cout<<"Almacenar en:";
+		cout<<"1. Bodega";
+		cout<<"2. Tienda";
 	
 		//Pasar nombre y descripcion de producto a minusculas
 		strlwr(producto[contProducto].info.nombre);
@@ -891,7 +897,7 @@ void plantillaProducto(){
 	gotoxy(160,2); cout<<"PESO";
 }
 
-void facturacion(){
+void formatoFactura(){
 	// formato mostrar productos (izquierda superior)
 	for(int x = 2; x < 50; x++){
 		gotoxy(x,1); cout<<"*";
@@ -902,8 +908,6 @@ void facturacion(){
 		gotoxy(2,y); cout<<"*";
 		gotoxy(49,y); cout<<"*";
 	}
-	gotoxy(14,2); cout<<"PRODUCTOS EN DISPONIBLES";
-	productosTienda();
 	
 	// formato comprar producto (izquierda inferios)
 	for(int x = 2; x < 50; x++){
@@ -915,9 +919,6 @@ void facturacion(){
 		gotoxy(2,y); cout<<"*";
 		gotoxy(49,y); cout<<"*";
 	}
-	gotoxy(8,34); cout<<"COMPRA DE SUS PRODUCTOS EN LA TIENDA";
-	gotoxy(3,36); cout<<"Codigo del producto: ";
-	gotoxy(3,37); cout<<"Cantidad de articulos: ";
 	
 	//formato factura (derecha)
 	for(int x = 60; x < 160; x++){
@@ -929,7 +930,16 @@ void facturacion(){
 		gotoxy(60,y); cout<<"*";
 		gotoxy(159,y); cout<<"*";
 	}
+}
+
+void facturacion(){
+	formatoFactura();
+	gotoxy(14,2); cout<<"PRODUCTOS EN DISPONIBLES";
+	gotoxy(8,34); cout<<"COMPRA DE SUS PRODUCTOS EN LA TIENDA";
+	gotoxy(3,36); cout<<"Codigo del producto: ";
+	gotoxy(3,37); cout<<"Cantidad de articulos: ";
 	gotoxy(95,2); cout<<"SISTEMA DE FACTURACION \"EL DUENDE\"";
+	productosTienda();
 }
 
 void productosTienda(){
