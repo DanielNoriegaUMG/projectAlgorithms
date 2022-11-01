@@ -1079,31 +1079,21 @@ void productosTienda(){
 	}
 }
 
-              //codigo pedro 
-                          
+//codigo pedro 
 //funcion buscar empleado eliminacion
-
 int buscarEmp(char busquedaEmpleado[50]){
 	int i=0;
 	bool encontrado=false;
 	while (encontrado==false && i<contEmpleado){
-		if(strcmp(busquedaEmpleado,empleado[i].info.nombre)==0){
-			encontrado=true;
-		}
-		else{
-			i++;
-		}
+		if(strcmp(busquedaEmpleado,empleado[i].info.nombre)==0) encontrado=true;
+		else i++;
 	}
-		if(encontrado==true){
-			return i;
-		}
-		else{
-			return -1;
-	}
+	if(encontrado==true) return i;
+	else return -1;
 } 
 	
 //funcion buscar proveedor para eliminacion
-
+// --------------------- DEMOSTRACION DE CODIGO PEDRO
 int buscarProv(char busquedaProveedorNom[50]){
 	int i=0;
 	bool encontrado=false;
@@ -1128,25 +1118,15 @@ int buscarProv(char busquedaProveedorNom[50]){
 	int i=0;
 	bool encontrado=false;
 	while (encontrado==false && i<contProducto){
-		if(strcmp(busquedaProductoNom,producto[i].info.nombre)==0){
-			encontrado=true;
-		}
-		else{
-			i++;
-		}
+		if(strcmp(busquedaProductoNom,producto[i].info.nombre)==0) encontrado=true;
+		else i++;
 	}
-		if(encontrado==true){
-			return i;
-		}
-		else{
-			return -1;
-	}
-
+	
+	if(encontrado==true) return i;
+	else return -1;
 }
 
-                          
-   //buscar proveedor
-
+//buscar proveedor
 void buscarProveedorNom(){
 	
 	char eliminarProveedor[50];
@@ -1206,9 +1186,7 @@ void eliminarProveedor(){
 	cout<<"NOMBRE: ";
 	cin.getline(nombre,50,'\n');
 	int pos=buscarProv(nombre);
-	if(pos==-1){
-		cout<<" EL EMPLEADO NO EXISTE ";
-	}
+	if(pos==-1) cout<<" EL EMPLEADO NO EXISTE ";
 	else{
 		
 		for (int i=pos; i<contProveedor; i++){
@@ -1219,13 +1197,11 @@ void eliminarProveedor(){
 			proveedor[i].prov.telefono = proveedor[i+1].prov.telefono;
 
 		}
-			contProveedor--;	
-			cout<<"EMPLEADO ELIMINADO";
-			getch();
-			
-		
-		}
+		contProveedor--;	
+		cout<<"EMPLEADO ELIMINADO";
+		getch();		
 	}
+}
 	
 //eliminar producto  por nombre
 void eliminarProducto(){
@@ -1235,9 +1211,7 @@ void eliminarProducto(){
 	cout<<"NOMBRE: ";
 	cin.getline(nombre,50,'\n');
 	int pos=buscarProd(nombre);
-	if(pos==-1){
-		cout<<" EL PRODUCTO NO EXISTE ";
-	}
+	if(pos==-1) cout<<" EL PRODUCTO NO EXISTE ";
 	else{
 		
 		for (int i=pos; i<contProducto; i++){
@@ -1251,13 +1225,12 @@ void eliminarProducto(){
 			
 
 		}
-			contProducto--;	
-			cout<<"EL PRODUCTO SE ELIMINO CON EXITO ";
-			getch();
-			
 		
-		}
+		contProducto--;	
+		cout<<"EL PRODUCTO SE ELIMINO CON EXITO ";
+		getch();
 	}
+}
 	
 	
 //eliminar producto  por codigo
@@ -1271,28 +1244,26 @@ void eliminarProductoCodigo(){
 	cin>>num;
 
 		for(int i=0; i<contProducto; i++ ){
-	
 		
-		if(num==producto[i].info.codigo){
-			cambio=true;
-			strcpy(producto[i].info.nombre,producto[i+1].info.nombre );
-			strcpy(producto[i].description,producto[i+1].description);
-			producto[i].info.codigo = producto[i+1].info.codigo;
-			producto[i].price =producto[i+1].price;
-			producto[i].quantity =producto[i+1].quantity;
-			producto[i].peso =producto[i+1].peso;
-			
-			contProducto--;		
-		}
+			if(num==producto[i].info.codigo){
+				cambio=true;
+				strcpy(producto[i].info.nombre,producto[i+1].info.nombre );
+				strcpy(producto[i].description,producto[i+1].description);
+				producto[i].info.codigo = producto[i+1].info.codigo;
+				producto[i].price =producto[i+1].price;
+				producto[i].quantity =producto[i+1].quantity;
+				producto[i].peso =producto[i+1].peso;
+				
+				contProducto--;		
+			}
 		
 		}
 		if(cambio==true){
 		   	cout<<"EL PRODUCTO SE ELIMINO CON EXITO ";
 			getch();
 		
-		}
-		else{
+		}else{
 			cout<<"EL CODIGO NO EXISTE";
 			getch();	
-	}
+		}
 }
