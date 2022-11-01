@@ -5,7 +5,7 @@
 #include <stdlib.h>
 #include <windows.h>
 
-int op, opProv, contCliente, contProveedor, contProducto, contEmpleado;
+int op, opProv, contCliente, contProveedor, contProducto, contEmpleado, contBodega, contTienda;
 
 struct Datos{
 	int codigo;
@@ -15,15 +15,19 @@ struct Datos{
 	int telefono;
 };
 
+struct Almacenamiento{
+	int unidades;
+}bodega[20], tienda[20];
+
 struct Productos{
 	struct Datos info;
+	struct Almacenamiento almacenado;
 	char description[60];
 	int quantity;
 	float price;
 	float peso;
 	float total;
-	int unidades;
-}producto[20], filtrado[20];
+}producto[100], prodBodega[50], prodTienda[50],filtrado[50];
 
 struct Proveedor{
 	struct Datos prov;
@@ -48,19 +52,24 @@ void formato();
 void home();
 
 //-------------- PRODUCTOS ------------------
+void menuProductos();
+void submenuListaProducto();
+void submenuModificarProducto(int opcion,Productos p,int posicion);
 bool validaProducto(int cod);
 void plantillaProducto();
+void buscaActualiza(int posicion);
 void busquedaProducto();
 void getModificarProducto(Productos p, int posicion);
-void submenuModificarProducto(int opcion,Productos p,int posicion);
-void menuProductos();
+void datosAlmacenar();
+void almacenarProducto();
 void registroProducto();
-void listaProductos();
+//void listaProductos();
+void listaBodega();
+void listaTienda();
 void modificarProducto();
 void eliminarProducto(); //pedro
  int buscarProdCod(char busquedaProductoNom[50]); //pedro
  void eliminarProductoCodigo(); //pedro
-
 
 
 //-------------- PROVEEDOR ------------------
@@ -137,7 +146,7 @@ void formato(){
 
 void home(){
 	formato();
-	gotoxy(63,14); cout<<"SISTEMA DE FACTURACION \"EL DUENDE\"";
+	gotoxy(63,14); cout<<"SISTEMA DE FACTURACION \"SUPER TIENDA MAS\"";
 	gotoxy(57,16); cout<<"1. Articulos";
 	gotoxy(57,17); cout<<"2. Proveedores";
 	gotoxy(57,18); cout<<"3. Empleados";
@@ -225,7 +234,8 @@ void menuProductos(){
 		break;
 		case 5:
 			system("cls");
-			listaProductos();
+			submenuListaProducto();
+//			listaProductos();
 			getch();
 			menuProductos();
 		break;
@@ -237,6 +247,56 @@ void menuProductos(){
 			gotoxy(57,25); cout<<"Opcion invalida vuelve a intentarlo...";
 			getch();
 			system("cls");
+	}
+}
+
+void submenuListaProducto(){
+	formato();
+	int opLista;
+	gotoxy(57,14); cout<<"VER LISTA DE PRODUCTOS ALMACENADOS";
+	gotoxy(57,16); cout<<"1. Bodega";
+	gotoxy(57,17); cout<<"2. Tienda";
+	gotoxy(57,19); cout<<"Digite una opcion: ";
+	gotoxy(76,19); cin>>opLista;
+	switch(opLista){
+		case 1:
+			listaBodega();
+		break;
+		case 2:
+			listaTienda();
+		break;
+		default:
+			cout<<"Opcion invalida, intente de nuevo...";
+			getch();
+			system("cls");
+	}
+}
+
+void listaBodega(){
+	gotoxy(80,2); cout<<"LISTADO EN BODEGA";
+	plantillaProducto();
+
+	for(int i = 0; i < contBodega; i++){
+		gotoxy(3,i+4); cout<<prodBodega[i].info.codigo;
+		gotoxy(18,i+4); cout<<prodBodega[i].info.nombre;
+		gotoxy(70,i+4); cout<<prodBodega[i].description;
+		gotoxy(130,i+4); cout<<prodBodega[i].quantity;
+		gotoxy(145,i+4); cout<<prodBodega[i].price;
+		gotoxy(160,i+4); cout<<prodBodega[i].peso;
+	}
+}
+
+void listaTienda(){
+	gotoxy(80,2); cout<<"LISTADO EN TIENDA";
+	plantillaProducto();
+
+	for(int i = 0; i < contTienda; i++){
+		gotoxy(3,i+4); cout<<prodTienda[i].info.codigo;
+		gotoxy(18,i+4); cout<<prodTienda[i].info.nombre;
+		gotoxy(70,i+4); cout<<prodTienda[i].description;
+		gotoxy(130,i+4); cout<<prodTienda[i].quantity;
+		gotoxy(145,i+4); cout<<prodTienda[i].price;
+		gotoxy(160,i+4); cout<<prodTienda[i].peso;
 	}
 }
 
@@ -436,25 +496,12 @@ void registroProducto(){
 		cout<<"DESCRIPCION: ";
 		cin.getline(producto[contProducto].description,60,'\n');
 		fflush(stdin);
-		cout<<"CANTIDAD: ";
-		cin>>producto[contProducto].quantity;
-		fflush(stdin);
-		cout<<"PRECIO (UNIDAD): Q ";
-		cin>>producto[contProducto].price;
-		fflush(stdin);
-		cout<<"PESO: ";
-		cin>>producto[contProducto].peso;
-		fflush(stdin);
 		
-		cout<<"Almacenar en:";
-		cout<<"1. Bodega";
-		cout<<"2. Tienda";
+		almacenarProducto();
 	
 		//Pasar nombre y descripcion de producto a minusculas
 		strlwr(producto[contProducto].info.nombre);
 		strlwr(producto[contProducto].description);
-		
-		contProducto++; //contador de productos
 	}
 }
 
@@ -464,6 +511,58 @@ bool validaProducto(int cod){
 		if(cod == producto[i].info.codigo) return true;
 	}
 	return false;
+}
+
+void almacenarProducto(){
+	int almacen = 0;
+	while(almacen != 1 && almacen != 2){
+		cout<<"Almacenar en:"<<endl;
+		cout<<"1. Bodega"<<endl;
+		cout<<"2. Tienda"<<endl;
+		cout<<"Digite una opcion: ";
+		cin>>almacen;
+		switch(almacen){
+			case 1:
+				cout<<"BODEGA"<<endl;
+				datosAlmacenar();
+				prodBodega[contBodega].info.codigo = producto[contProducto].info.codigo;
+				strcpy(prodBodega[contBodega].info.nombre, producto[contProducto].info.nombre);
+				strcpy(prodBodega[contBodega].description, producto[contProducto].description);
+				prodBodega[contBodega].quantity = producto[contProducto].quantity;
+				prodBodega[contBodega].price = producto[contProducto].price;
+				prodBodega[contBodega].peso = producto[contProducto].peso;
+				contBodega++;
+				contProducto++; //contador de productos
+			break;
+			case 2:
+				cout<<"TIENDA"<<endl;
+				datosAlmacenar();
+				prodTienda[contTienda].info.codigo = producto[contProducto].info.codigo;
+				strcpy(prodTienda[contTienda].info.nombre, producto[contProducto].info.nombre);
+				strcpy(prodTienda[contTienda].description, producto[contProducto].description);
+				prodTienda[contTienda].quantity = producto[contProducto].quantity;
+				prodTienda[contTienda].price = producto[contProducto].price;
+				prodTienda[contTienda].peso = producto[contProducto].peso;
+				contTienda++;
+				contProducto++; //contador de productos
+			break;
+			default:
+				cout<<"Opcion invalida, intente de nuevo...";
+				getch();
+		}
+	}
+}
+
+void datosAlmacenar(){
+	cout<<"CANTIDAD: ";
+	cin>>producto[contProducto].quantity;
+	fflush(stdin);
+	cout<<"PRECIO (UNIDAD): Q ";
+	cin>>producto[contProducto].price;
+	fflush(stdin);
+	cout<<"PESO: ";
+	cin>>producto[contProducto].peso;
+	fflush(stdin);
 }
 
 void modificarProducto(){
@@ -541,11 +640,39 @@ void getModificarProducto(Productos p, int posicion){
 	cin>>producto[posicion].price;
 	cout<<"NUEVO PESO: ";
 	cin>>producto[posicion].peso;
+	
+	buscaActualiza(posicion);
+	
 	Sleep(500);
 	cout<<"Espere..."<<endl;
 	Sleep(1000);
 	cout<<"Actulizando datos..."<<endl;
 	cout<<"Se han actualizado los datos correctamente!";
+}
+
+void buscaActualiza(int posicion){
+	int localizar;
+	for(int i = 0; i < contTienda; i++){
+		if(producto[posicion].info.codigo == prodTienda[i].info.codigo){
+			localizar = i;
+			strcpy(prodTienda[localizar].info.nombre, producto[posicion].info.nombre);
+			strcpy(prodTienda[localizar].description, producto[posicion].description);
+			prodTienda[localizar].quantity = producto[posicion].quantity;
+			prodTienda[localizar].price = producto[posicion].price;
+			prodTienda[localizar].peso = producto[posicion].peso;
+		}
+	}
+	
+	for(int i = 0; i < contBodega; i++){
+		if(producto[posicion].info.codigo == prodBodega[i].info.codigo){
+			localizar = i;
+			strcpy(prodBodega[localizar].info.nombre, producto[posicion].info.nombre);
+			strcpy(prodBodega[localizar].description, producto[posicion].description);
+			prodBodega[localizar].quantity = producto[posicion].quantity;
+			prodBodega[localizar].price = producto[posicion].price;
+			prodBodega[localizar].peso = producto[posicion].peso;
+		}
+	}
 }
 
 void sinProveedor(){
@@ -938,16 +1065,16 @@ void facturacion(){
 	gotoxy(8,34); cout<<"COMPRA DE SUS PRODUCTOS EN LA TIENDA";
 	gotoxy(3,36); cout<<"Codigo del producto: ";
 	gotoxy(3,37); cout<<"Cantidad de articulos: ";
-	gotoxy(95,2); cout<<"SISTEMA DE FACTURACION \"EL DUENDE\"";
+	gotoxy(95,2); cout<<"\"SUPER TIENDA MAS\"";
 	productosTienda();
 }
 
 void productosTienda(){
 	int x = 4;
 	int y = 5;
-	for(int i = 0; i < contProducto; i++){
+	for(int i = 0; i < contTienda; i++){
 		gotoxy(x,y); cout<<i+1<<".";
-		gotoxy(x+3,y); cout<<producto[i].info.nombre;
+		gotoxy(x+3,y); cout<<prodTienda[i].info.nombre;
 		y++;
 	}
 }
@@ -1060,26 +1187,16 @@ void eliminarEmpleado(){
 	int pos=buscarEmp(nombre);
 	if(pos==-1){
 		cout<<" EL EMPLEADO NO EXISTE ";
-	}
-	else{
-		
+	}else{
 		for (int i=pos; i<contEmpleado; i++){
-			
 			empleado[i]=empleado[i+1];
-			
-			/*strcpy(empleado[i].info.nombre,empleado[i+1].info.nombre);
-			strcpy(empleado[i].apellido,empleado[i+1].apellido);
-			strcpy(empleado[i].info.direccion,empleado[i+1].info.direccion);
-			empleado[i].edad = empleado[i+1].edad;
-			empleado[i].caja = empleado[i+1].caja;
-			*/
 		}
-			contEmpleado--;	
-			cout<<"EMPLEADO ELIMINADO";
-			getch;
+		contEmpleado--;	
+		cout<<"EMPLEADO ELIMINADO";
+		getch;
 		
-		}
 	}
+}
 	
 //eliminar proveedor
 void eliminarProveedor(){
