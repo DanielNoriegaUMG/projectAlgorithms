@@ -120,7 +120,10 @@ void buscarEmpleadoCodigo();
 void busquedaEmpleado();
 bool validaCaja(int x);
 bool validaNombres(Employee);
-bool validaUsuario(Employee e);
+void ocultarPassword(char user[], char password[], int modulo);
+void guardarPassword(char password[]);
+void loguear(char user[], char password[]);
+bool validaUsuario(char user[],int tam);
 void registroEmpleado();
 void listaEmpleado();
 void buscarEmpleadoNombre(); //pedro 
@@ -129,7 +132,6 @@ void eliminarEmpleado(); //pedro
 
 //-------------- FACTURACION ------------------
 void formatoLogin();
-void ocultarPassword(char password[]);
 void login();
 void fecha(Fecha d);
 void formatoFactura();
@@ -445,49 +447,56 @@ void registroEmpleado(){
 	char user[30];
 	char password[20];
 	
-	cout<<"NOMBRE: ";
-	cin.getline(empleado[contEmpleado].info.nombre,50,'\n');
+	formato();
+	gotoxy(68,13); cout<<"REGISTRO DE NUEVO EMPLEADO";
+	gotoxy(57,14); cout<<"NOMBRE:";
+	gotoxy(64,14); cin.getline(empleado[contEmpleado].info.nombre,50,'\n');
 	fflush(stdin);
-	cout<<"APELLIDO: ";
-	cin.getline(empleado[contEmpleado].apellido,50,'\n');
+	gotoxy(57,15); cout<<"APELLIDO:";
+	gotoxy(66,15); cin.getline(empleado[contEmpleado].apellido,50,'\n');
 	fflush(stdin);
 	
 	// revisar que no exista el empleado
 	if(validaNombres(empleado[contEmpleado])){
-		cout<<"Este empleado ya existe...";
+		gotoxy(57,20); cout<<"Este empleado ya existe...";
 		memset(empleado[contEmpleado].info.nombre,0,50); // vaciar memoria de variables
 		memset(empleado[contEmpleado].apellido,0,50); // vaciar memoria de variables
 		getch();
+		system("cls");
 	}else{
-		cout<<"DIRECCION: ";
-		cin.getline(empleado[contEmpleado].info.direccion,100,'\n');
+		gotoxy(57,16); cout<<"DIRECCION:";
+		gotoxy(68,16); cin.getline(empleado[contEmpleado].info.direccion,100,'\n');
 		fflush(stdin);
-		cout<<"Edad: ";
-		cin>>empleado[contEmpleado].edad;
-		cout<<"No. de caja: ";
-		cin>>num;
+		gotoxy(57,17); cout<<"EDAD:";
+		gotoxy(63,17); cin>>empleado[contEmpleado].edad;
+		gotoxy(57,18); cout<<"NO. DE CAJA:";
+		gotoxy(70,18); cin>>num;
 		fflush(stdin);
 		
 		while(validaCaja(num)){
-			cout<<"Ese numero de caja ya esta ocupado..."<<endl;
-			cout<<"No de caja: ";
-			cin>>num;
+			gotoxy(57,20); cout<<"Ese numero de caja ya esta ocupado..."; getch();
+			gotoxy(57,20); cout<<"                                     ";
+			gotoxy(57,18); cout<<"NO. DE CAJA:";
+			gotoxy(70,18); cin>>num;
 			fflush(stdin);
 		}
 		
-		cout<<"Usuario: ";
-		cin.getline(user,30,'\n');
+		gotoxy(57,19); cout<<"Usuario:";
+		gotoxy(65,19); cin.getline(user,30,'\n');
 		fflush(stdin);
 
-		while(validaUsuario(empleado[contEmpleado])){
+		while(validaUsuario(user,30)){
 			memset(user,0,30);
-			cout<<"Este nombre de usuario ya existe..."<<endl;
-			cout<<"Intente de nuevo";
-			cout<<"Usuario: ";
-			cin.getline(user,30,'\n');
+			gotoxy(57,21); cout<<"El usuario ya existe...";
+			gotoxy(57,22); cout<<"Intente de nuevo"; getch();
+			gotoxy(57,21); cout<<"                       ";
+			gotoxy(57,22); cout<<"                ";
+			gotoxy(65,19); cout<<"                   ";
+			gotoxy(57,19); cout<<"Usuario:";
+			gotoxy(65,19); cin.getline(user,30,'\n');
 		}
 		
-		ocultarPassword(password);
+		ocultarPassword(user, password,1);
 		strcpy(empleado[contEmpleado].cuenta.user, user);
 
 		empleado[contEmpleado].caja = num;
@@ -516,16 +525,19 @@ bool validaNombres(Employee e){
 	return false;
 }
 
-bool validaUsuario(Employee e){
+bool validaUsuario(char user[], int tam){
+	user[tam];
 	for(int i = 0; i < contEmpleado; i++){
-		if(strcmp(e.cuenta.user, empleado[i].cuenta.user) == 0) return true;
+		if(strcmp(user, empleado[i].cuenta.user) == 0) return true;
 	}
 	return false;
 }
 
-void ocultarPassword(char password[]){
+void ocultarPassword(char user[], char password[], int modulo){
     int i=0;
+    int ingresar;
     fflush(stdin);
+    gotoxy(57,20); cout<<"Password: ";
     do{
 // 		capturar datos infinitos y hacer una pausa despues de presionae una tecl
         password[i] = (unsigned char)getch();
@@ -540,9 +552,35 @@ void ocultarPassword(char password[]){
     }while(password[i-1]!=13);  // finaliza hasta que presione Enter
     password[i-1] = NULL;
     
-    strcpy(empleado[contEmpleado].cuenta.password, password);
+    if(modulo == 1) guardarPassword(password);
+    if(modulo == 2) loguear(user, password);
+    
+//  strcpy(empleado[contEmpleado].cuenta.password, password);
 //  cout<<empleado[contEmpleado].cuenta.password;
 //  getch();
+}
+
+void guardarPassword(char password[]){
+	strcpy(empleado[contEmpleado].cuenta.password, password);
+}
+
+void loguear(char user[], char password[]){
+	int posicion;
+	for(int i = 0; i < contEmpleado; i++){
+		if(strcmp(user, empleado[i].cuenta.user) == 0 && strcmp(password, empleado[i].cuenta.password) == 0) posicion = i;
+		else posicion = -1;
+	}
+	
+	if(posicion >= 0){
+		system("cls");
+		gotoxy(76,16); cout<<"Bienvenido "<<empleado[posicion].cuenta.user<<"!";
+		Sleep(1000);
+		system("cls");
+		facturacion();
+	}else{
+		system("cls");
+		gotoxy(76,16); cout<<"Credenciales invalidas";
+	}
 }
 
 // ingreso producto
@@ -1158,11 +1196,17 @@ void formatoLogin(){
 
 void login(){
 	char user[30], password[50];
-	formatoLogin();
-	gotoxy(63,18); cout<<"Nombre de usuario:";
-	gotoxy(82,18); cin.getline(user,30,'\n');
-	gotoxy(63,19); cout<<"Password:";
-	gotoxy(73,19); cin.getline(password,50,'\n');
+//	formatoLogin();
+	formato();
+	gotoxy(76,15); cout<<"LOGIN";
+	gotoxy(57,17); cout<<"USUARIO:";
+	gotoxy(66,17); cin.getline(user,30,'\n');
+	ocultarPassword(user, password, 2);
+	
+//	system("cls");
+//	cout<<"Bienvenido "<<empleado[ingresar].cuenta.user
+//	gotoxy(57,19); cout<<"PASSWORD:";
+//	gotoxy(67,19); cin.getline(password,50,'\n');
 }
 
 void facturacion(){
