@@ -4,6 +4,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <windows.h>
+#include <ctime> // para obtener fecha actual
 
 int op, opProv, contCliente, contProveedor, contProducto, contEmpleado, contBodega, contTienda;
 
@@ -33,8 +34,14 @@ struct Proveedor{
 	struct Datos prov;
 }proveedor[20];
 
+struct Credenciales{
+	char user[30];
+	char password[30];
+};
+
 struct Employee{
 	struct Datos info;
+	struct Credenciales cuenta;
 	char apellido[50];
 	int edad;
 	int caja;
@@ -43,6 +50,25 @@ struct Employee{
 struct Cliente{
 	struct Datos info;
 }cliente[20];
+
+struct Fecha{
+	int day, month, year, second, minutes, hour;
+}obtener, actual;
+
+Fecha hoy(){
+	time_t t;
+	t = time(NULL);
+	struct tm *f;
+	f = localtime(&t);
+	obtener.year = f->tm_year + 1900;
+	obtener.month = f->tm_mon + 1;
+	obtener.day = f->tm_mday;
+	obtener.hour =  f->tm_hour;
+	obtener.minutes = f->tm_min;
+	obtener.second = f->tm_sec;
+	
+	return obtener;
+}
 
 using namespace std;
 
@@ -94,6 +120,7 @@ void buscarEmpleadoCodigo();
 void busquedaEmpleado();
 bool validaCaja(int x);
 bool validaNombres(Employee);
+bool validaUsuario(Employee e);
 void registroEmpleado();
 void listaEmpleado();
 void buscarEmpleadoNombre(); //pedro 
@@ -101,8 +128,13 @@ void eliminarEmpleado(); //pedro
 
 
 //-------------- FACTURACION ------------------
+void formatoLogin();
+void ocultarPassword(char password[]);
+void login();
+void fecha(Fecha d);
 void formatoFactura();
 void productosTienda();
+void comprar();
 void facturacion();
 
 
@@ -177,7 +209,7 @@ void home(){
 		break;
 		case 5:
 			system("cls");
-			facturacion();
+			login();
 			getch();
 			system("cls");
 		break;
@@ -410,6 +442,8 @@ void menuEmployee(){
 
 void registroEmpleado(){
 	int num;
+	char user[30];
+	char password[20];
 	
 	cout<<"NOMBRE: ";
 	cin.getline(empleado[contEmpleado].info.nombre,50,'\n');
@@ -432,6 +466,7 @@ void registroEmpleado(){
 		cin>>empleado[contEmpleado].edad;
 		cout<<"No. de caja: ";
 		cin>>num;
+		fflush(stdin);
 		
 		while(validaCaja(num)){
 			cout<<"Ese numero de caja ya esta ocupado..."<<endl;
@@ -439,6 +474,22 @@ void registroEmpleado(){
 			cin>>num;
 			fflush(stdin);
 		}
+		
+		cout<<"Usuario: ";
+		cin.getline(user,30,'\n');
+		fflush(stdin);
+
+		while(validaUsuario(empleado[contEmpleado])){
+			memset(user,0,30);
+			cout<<"Este nombre de usuario ya existe..."<<endl;
+			cout<<"Intente de nuevo";
+			cout<<"Usuario: ";
+			cin.getline(user,30,'\n');
+		}
+		
+		ocultarPassword(password);
+		strcpy(empleado[contEmpleado].cuenta.user, user);
+
 		empleado[contEmpleado].caja = num;
 		//Pasar nombre y apellido de empleados a minusculas
 		strlwr(empleado[contEmpleado].info.nombre);
@@ -463,6 +514,35 @@ bool validaNombres(Employee e){
 		}
 	}
 	return false;
+}
+
+bool validaUsuario(Employee e){
+	for(int i = 0; i < contEmpleado; i++){
+		if(strcmp(e.cuenta.user, empleado[i].cuenta.user) == 0) return true;
+	}
+	return false;
+}
+
+void ocultarPassword(char password[]){
+    int i=0;
+    fflush(stdin);
+    do{
+// 		capturar datos infinitos y hacer una pausa despues de presionae una tecl
+        password[i] = (unsigned char)getch();
+        if(password[i]!=8){  // Diferente de retroceso
+            cout<<"*";
+            i++;
+        }else if(i > 0){    // presionan retroceso y existe texto
+            cout<<(char)8<<(char)32<<(char)8;
+            i--;  //borra el espacio en blanco
+        }
+		fflush(stdin);
+    }while(password[i-1]!=13);  // finaliza hasta que presione Enter
+    password[i-1] = NULL;
+    
+    strcpy(empleado[contEmpleado].cuenta.password, password);
+//  cout<<empleado[contEmpleado].cuenta.password;
+//  getch();
 }
 
 // ingreso producto
@@ -1024,6 +1104,11 @@ void plantillaProducto(){
 	gotoxy(160,2); cout<<"PESO";
 }
 
+void insertarFecha(Fecha f){
+	gotoxy(125,3); cout<<"Fecha:"<<f.day<<"/"<<f.month<<"/"<<f.year;
+	gotoxy(145,3); cout<<"Hora:"<<f.hour<<":"<<f.minutes<<":"<<f.second;
+}
+
 void formatoFactura(){
 	// formato mostrar productos (izquierda superior)
 	for(int x = 2; x < 50; x++){
@@ -1050,7 +1135,7 @@ void formatoFactura(){
 	//formato factura (derecha)
 	for(int x = 60; x < 160; x++){
 		gotoxy(x,1); cout<<"*";
-		gotoxy(x,3); cout<<"*";
+		gotoxy(x,6); cout<<"*";
 		gotoxy(x,40); cout<<"*";
 	}
 	for(int y = 2; y < 40; y++){
@@ -1059,24 +1144,56 @@ void formatoFactura(){
 	}
 }
 
+void formatoLogin(){
+	for(int x = 60; x < 101; x++){
+		gotoxy(x,15); cout<<"*";
+		gotoxy(x,25); cout<<"*";
+	}
+	
+	for(int y = 15; y < 25; y++){
+		gotoxy(60,y); cout<<"*";
+		gotoxy(100,y); cout<<"*";
+	}
+}
+
+void login(){
+	char user[30], password[50];
+	formatoLogin();
+	gotoxy(63,18); cout<<"Nombre de usuario:";
+	gotoxy(82,18); cin.getline(user,30,'\n');
+	gotoxy(63,19); cout<<"Password:";
+	gotoxy(73,19); cin.getline(password,50,'\n');
+}
+
 void facturacion(){
 	formatoFactura();
-	gotoxy(14,2); cout<<"PRODUCTOS EN DISPONIBLES";
+	gotoxy(14,2); cout<<"PRODUCTOS DISPONIBLES EN TIENDA";
 	gotoxy(8,34); cout<<"COMPRA DE SUS PRODUCTOS EN LA TIENDA";
 	gotoxy(3,36); cout<<"Codigo del producto: ";
 	gotoxy(3,37); cout<<"Cantidad de articulos: ";
-	gotoxy(95,2); cout<<"\"SUPER TIENDA MAS\"";
+	gotoxy(99,2); cout<<"\"SUPER TIENDA MAS\"";
+	
+	actual = hoy();
+	insertarFecha(actual);
 	productosTienda();
+	comprar();
 }
 
 void productosTienda(){
 	int x = 4;
 	int y = 5;
+	gotoxy(4,4); cout<<"COD";
+	gotoxy(10,4); cout<<"PRODUCTO";
 	for(int i = 0; i < contTienda; i++){
-		gotoxy(x,y); cout<<i+1<<".";
-		gotoxy(x+3,y); cout<<prodTienda[i].info.nombre;
+		gotoxy(x,y); cout<<prodTienda[i].info.codigo;
+		gotoxy(x+6,y); cout<<prodTienda[i].info.nombre;
 		y++;
 	}
+}
+
+void comprar(){
+	int cod;
+	gotoxy(24,36); cin>>cod;
 }
 
 //codigo pedro 
@@ -1093,27 +1210,18 @@ int buscarEmp(char busquedaEmpleado[50]){
 } 
 	
 //funcion buscar proveedor para eliminacion
-// --------------------- DEMOSTRACION DE CODIGO PEDRO
 int buscarProv(char busquedaProveedorNom[50]){
 	int i=0;
 	bool encontrado=false;
-	while (encontrado==false && i<contProveedor){
-		if(strcmp(busquedaProveedorNom,proveedor[i].prov.nombre)==0){
-			encontrado=true;
-		}
-		else{
-			i++;
-		}
+	while(encontrado==false && i<contProveedor){
+		if(strcmp(busquedaProveedorNom,proveedor[i].prov.nombre)==0) encontrado=true;
+		else i++;
 	}
-		if(encontrado==true){
-			return i;
-		}
-		else{
-			return -1;
-	}
+	if(encontrado==true) return i;
+	else return -1;
 } 
- // funcion  buscar por nombre para eliminacion de articulos 
  
+ // funcion  buscar por nombre para eliminacion de articulos 
  int buscarProd(char busquedaProductoNom[50]){
 	int i=0;
 	bool encontrado=false;
@@ -1121,7 +1229,6 @@ int buscarProv(char busquedaProveedorNom[50]){
 		if(strcmp(busquedaProductoNom,producto[i].info.nombre)==0) encontrado=true;
 		else i++;
 	}
-	
 	if(encontrado==true) return i;
 	else return -1;
 }
@@ -1153,7 +1260,6 @@ void buscarProveedorNom(){
 		gotoxy(110,4); cout<<proveedor[pos].prov.telefono;
 	}
 }  
-
 
 
 //eliminar registros empleado
