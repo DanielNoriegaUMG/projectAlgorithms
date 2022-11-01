@@ -565,13 +565,12 @@ void guardarPassword(char password[]){
 }
 
 void loguear(char user[], char password[]){
-	int posicion;
+	int posicion = -1;
 	for(int i = 0; i < contEmpleado; i++){
 		if(strcmp(user, empleado[i].cuenta.user) == 0 && strcmp(password, empleado[i].cuenta.password) == 0) posicion = i;
-		else posicion = -1;
 	}
 	
-	if(posicion >= 0){
+	if(posicion != -1){
 		system("cls");
 		gotoxy(76,16); cout<<"Bienvenido "<<empleado[posicion].cuenta.user<<"!";
 		Sleep(1000);
@@ -1196,17 +1195,11 @@ void formatoLogin(){
 
 void login(){
 	char user[30], password[50];
-//	formatoLogin();
 	formato();
 	gotoxy(76,15); cout<<"LOGIN";
 	gotoxy(57,17); cout<<"USUARIO:";
 	gotoxy(66,17); cin.getline(user,30,'\n');
 	ocultarPassword(user, password, 2);
-	
-//	system("cls");
-//	cout<<"Bienvenido "<<empleado[ingresar].cuenta.user
-//	gotoxy(57,19); cout<<"PASSWORD:";
-//	gotoxy(67,19); cin.getline(password,50,'\n');
 }
 
 void facturacion(){
@@ -1238,6 +1231,20 @@ void productosTienda(){
 void comprar(){
 	int cod;
 	gotoxy(24,36); cin>>cod;
+//	if(buscarCompra(cod) != -1){
+//		gotoxy(); cout<<"";
+//	}
+}
+
+int buscarCompra(int codigo){
+	int posicion;
+	for(int i = 0; i < contTienda; i++){
+		if(codigo == prodTienda[i].info.codigo){
+			posicion = i;
+			return posicion;
+		}
+	}
+	return -1;
 }
 
 //codigo pedro 
