@@ -27,8 +27,9 @@ struct Productos{
 	int quantity;
 	float price;
 	float peso;
+	float subtotal;
 	float total;
-}producto[100], prodBodega[50], prodTienda[50],filtrado[50];
+}producto[100], prodBodega[50], prodTienda[50],filtrado[50], compra[100];
 
 struct Proveedor{
 	struct Datos prov;
@@ -136,6 +137,10 @@ void login();
 void fecha(Fecha d);
 void formatoFactura();
 void productosTienda();
+void comprarTienda(int posicion, int cantidad);
+int buscarCompra(int codigo);
+void comprarTienda(int posicion, int cantidad,int contCompra, int x, int y);
+void mostrarMisCompras(int contador, int totalCompras);
 void comprar();
 void facturacion();
 
@@ -573,6 +578,7 @@ void loguear(char user[], char password[]){
 	if(posicion != -1){
 		system("cls");
 		gotoxy(76,16); cout<<"Bienvenido "<<empleado[posicion].cuenta.user<<"!";
+		gotoxy(78,18); cout<<"Espere...";
 		Sleep(1000);
 		system("cls");
 		facturacion();
@@ -1172,7 +1178,7 @@ void formatoFactura(){
 	//formato factura (derecha)
 	for(int x = 60; x < 160; x++){
 		gotoxy(x,1); cout<<"*";
-		gotoxy(x,6); cout<<"*";
+		gotoxy(x,7); cout<<"*";
 		gotoxy(x,40); cout<<"*";
 	}
 	for(int y = 2; y < 40; y++){
@@ -1207,7 +1213,7 @@ void facturacion(){
 	gotoxy(14,2); cout<<"PRODUCTOS DISPONIBLES EN TIENDA";
 	gotoxy(8,34); cout<<"COMPRA DE SUS PRODUCTOS EN LA TIENDA";
 	gotoxy(3,36); cout<<"Codigo del producto: ";
-	gotoxy(3,37); cout<<"Cantidad de articulos: ";
+	gotoxy(3,37); cout<<"Cantidad de articulos:";
 	gotoxy(99,2); cout<<"\"SUPER TIENDA MAS\"";
 	
 	actual = hoy();
@@ -1229,12 +1235,29 @@ void productosTienda(){
 }
 
 void comprar(){
-	int cod;
-	gotoxy(24,36); cin>>cod;
-//	if(buscarCompra(cod) != -1){
-//		gotoxy(); cout<<"";
-//	}
+	int x = 62;
+	int y = 9;
+	int cod, cantidad;
+	int resultado;
+	int contCompra = 0;
+	
+	while(cod != -2){
+		gotoxy(24,36); cin>>cod;
+		resultado = buscarCompra(cod);
+		if(resultado != -1){
+			gotoxy(25,37); cin>>cantidad;
+			comprarTienda(resultado, cantidad, contCompra, x, y);
+			y++;	
+		}else if(cod == -2){
+			getch();
+			home();
+		}
+		else cout<<"El producto no existe...";
+		gotoxy(24,36); cout<<"      ";
+		gotoxy(25,37); cout<<"      ";
+	}
 }
+
 
 int buscarCompra(int codigo){
 	int posicion;
@@ -1245,6 +1268,41 @@ int buscarCompra(int codigo){
 		}
 	}
 	return -1;
+}
+
+void comprarTienda(int posicion, int cantidad,int contCompra, int x, int y){
+	int acumuladorProd = 0;
+	
+	strcpy(compra[contCompra].info.nombre, prodTienda[posicion].info.nombre);
+	compra[contCompra].quantity = cantidad;
+	compra[contCompra].subtotal = prodTienda[posicion].price * cantidad;
+	acumuladorProd = acumuladorProd + compra[contCompra].quantity;
+
+	int i = 0;
+	while(i <= contCompra){
+		gotoxy(148,4); cout<<"  ";
+		gotoxy(x,y); cout<<compra[i].info.nombre;
+		gotoxy(x+30,y); cout<<prodTienda[posicion].price;
+		gotoxy(x+45,y); cout<<compra[i].quantity;
+		gotoxy(x+65,y); cout<<compra[i].subtotal;
+		acumuladorProd += compra[i].quantity;
+		gotoxy(140,4); cout<<"Compras: "<<acumuladorProd;
+		i++;
+	}
+	contCompra++;
+}
+
+void mostrarMisCompras(int contador, int totalCompras){
+	
+
+//	for(int i = 0; i < contador; i++){
+//		gotoxy(x,y); cout<<compra[i].info.nombre;
+//		gotoxy(x+30,y); cout<<prodTienda[i].price;
+//		gotoxy(x+45,y); cout<<compra[i].quantity;
+//		gotoxy(x+65,y); cout<<compra[i].subtotal;
+//		gotoxy(140,4); cout<<"Compras: "<<totalCompras;
+//		y++;
+//	}
 }
 
 //codigo pedro 
