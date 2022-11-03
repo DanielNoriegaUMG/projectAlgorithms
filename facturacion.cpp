@@ -6,7 +6,8 @@
 #include <windows.h>
 #include <ctime> // para obtener fecha actual
 
-int op, opProv, contCliente, contProveedor, contProducto, contEmpleado, contBodega, contTienda;
+int op, opProv,codigoCliente, contCliente, contProveedor, contProducto, contEmpleado, contBodega, contTienda;
+char nombreCompleto[50];
 
 struct Datos{
 	int codigo;
@@ -50,6 +51,7 @@ struct Employee{
 
 struct Cliente{
 	struct Datos info;
+	char apellido[50];
 }cliente[20];
 
 struct Fecha{
@@ -130,6 +132,9 @@ void listaEmpleado();
 void buscarEmpleadoNombre(); //pedro 
 void eliminarEmpleado(); //pedro
 
+//-------------- CLIENTE ------------------
+int mostrarDatosCliente(int nit);
+void registroCliente();
 
 //-------------- FACTURACION ------------------
 void formatoLogin();
@@ -139,7 +144,7 @@ void formatoFactura();
 void productosTienda();
 void comprarTienda(int posicion, int cantidad);
 int buscarCompra(int codigo);
-void comprarTienda(int posicion, int cantidad,int contCompra, int x, int y);
+void comprarTienda(int posicion, int cantidad,int acumuladorProd, int contCompra, int x, int y);
 void mostrarMisCompras(int contador, int totalCompras);
 void comprar();
 void facturacion();
@@ -638,41 +643,40 @@ bool validaProducto(int cod){
 
 void almacenarProducto(){
 	int almacen = 0;
-	while(almacen != 1 && almacen != 2){
-		cout<<"Almacenar en:"<<endl;
-		cout<<"1. Bodega"<<endl;
-		cout<<"2. Tienda"<<endl;
-		cout<<"Digite una opcion: ";
-		cin>>almacen;
-		switch(almacen){
-			case 1:
-				cout<<"BODEGA"<<endl;
-				datosAlmacenar();
-				prodBodega[contBodega].info.codigo = producto[contProducto].info.codigo;
-				strcpy(prodBodega[contBodega].info.nombre, producto[contProducto].info.nombre);
-				strcpy(prodBodega[contBodega].description, producto[contProducto].description);
-				prodBodega[contBodega].quantity = producto[contProducto].quantity;
-				prodBodega[contBodega].price = producto[contProducto].price;
-				prodBodega[contBodega].peso = producto[contProducto].peso;
-				contBodega++;
-				contProducto++; //contador de productos
-			break;
-			case 2:
-				cout<<"TIENDA"<<endl;
-				datosAlmacenar();
-				prodTienda[contTienda].info.codigo = producto[contProducto].info.codigo;
-				strcpy(prodTienda[contTienda].info.nombre, producto[contProducto].info.nombre);
-				strcpy(prodTienda[contTienda].description, producto[contProducto].description);
-				prodTienda[contTienda].quantity = producto[contProducto].quantity;
-				prodTienda[contTienda].price = producto[contProducto].price;
-				prodTienda[contTienda].peso = producto[contProducto].peso;
-				contTienda++;
-				contProducto++; //contador de productos
-			break;
-			default:
-				cout<<"Opcion invalida, intente de nuevo...";
-				getch();
-		}
+	cout<<"Almacenar en:"<<endl;
+	cout<<"1. Bodega"<<endl;
+	cout<<"2. Tienda"<<endl;
+	cin>>almacen;
+	switch(almacen){
+		case 1:
+			cout<<"BODEGA"<<endl;
+			datosAlmacenar();
+			prodBodega[contBodega].info.codigo = producto[contProducto].info.codigo;
+			strcpy(prodBodega[contBodega].info.nombre, producto[contProducto].info.nombre);
+			strcpy(prodBodega[contBodega].description, producto[contProducto].description);
+			prodBodega[contBodega].quantity = producto[contProducto].quantity;
+			prodBodega[contBodega].price = producto[contProducto].price;
+			prodBodega[contBodega].peso = producto[contProducto].peso;
+			contBodega++;
+			contProducto++; //contador de productos
+		break;
+		case 2:
+			cout<<"TIENDA"<<endl;
+			datosAlmacenar();
+			prodTienda[contTienda].info.codigo = producto[contProducto].info.codigo;
+			strcpy(prodTienda[contTienda].info.nombre, producto[contProducto].info.nombre);
+			strcpy(prodTienda[contTienda].description, producto[contProducto].description);
+			prodTienda[contTienda].quantity = producto[contProducto].quantity;
+			prodTienda[contTienda].price = producto[contProducto].price;
+			prodTienda[contTienda].peso = producto[contProducto].peso;
+			contTienda++;
+			contProducto++; //contador de productos
+		break;
+		default:
+			cout<<"Opcion invalida";
+			memset(producto[contProducto].info.nombre,0,50);
+			memset(producto[contProducto].description,0,60);
+			getch();
 	}
 }
 
@@ -880,6 +884,12 @@ bool validaNit(int nit, int modulo){
 	if(modulo == 2){ //para buscar nit en proveedores
 		for(int i = 0; i < contProveedor; i++){
 			if(nit == proveedor[i].prov.nit) return true;
+		}
+	}
+	
+	if(modulo == 3){ //para buscar nit en clientes
+		for(int i = 0; i < contCliente; i++){
+			if(nit == cliente[i].info.nit) return true;
 		}
 	}
 	return false;
@@ -1215,6 +1225,9 @@ void facturacion(){
 	gotoxy(3,36); cout<<"Codigo del producto: ";
 	gotoxy(3,37); cout<<"Cantidad de articulos:";
 	gotoxy(99,2); cout<<"\"SUPER TIENDA MAS\"";
+	gotoxy(62,3); cout<<"NIT:";
+	gotoxy(62,4); cout<<"NOMBRE:";
+	gotoxy(62,6); cout<<"DIRECCION:";
 	
 	actual = hoy();
 	insertarFecha(actual);
@@ -1237,16 +1250,27 @@ void productosTienda(){
 void comprar(){
 	int x = 62;
 	int y = 9;
-	int cod, cantidad;
-	int resultado;
-	int contCompra = 0;
+	int cod, cantidad, resultado, contCompra, capturar, pos;
+	int acumuladorProd = 0;
+	long int nit;
+	
+	gotoxy(66,3); cin>>nit;
+	capturar = validaNit(nit, 3);
+	if(capturar){
+		pos = mostrarDatosCliente(nit);
+		strcat(nombreCompleto, cliente[pos].info.nombre);
+		strcat(nombreCompleto, " ");
+		strcat(nombreCompleto, cliente[pos].apellido);
+		gotoxy(69,4); cout<<nombreCompleto;
+		gotoxy(72,6); cout<<cliente[pos].info.direccion;
+	}else registroCliente();
 	
 	while(cod != -2){
 		gotoxy(24,36); cin>>cod;
 		resultado = buscarCompra(cod);
 		if(resultado != -1){
 			gotoxy(25,37); cin>>cantidad;
-			comprarTienda(resultado, cantidad, contCompra, x, y);
+			comprarTienda(resultado, cantidad, acumuladorProd, contCompra, x, y);
 			y++;	
 		}else if(cod == -2){
 			getch();
@@ -1258,6 +1282,46 @@ void comprar(){
 	}
 }
 
+int mostrarDatosCliente(int nit){
+	int posicion;
+	for(int i = 0; i < contCliente; i++){
+		if(nit == cliente[i].info.nit) posicion = i;
+	}
+	return posicion;
+}
+
+void registroCliente(){	 
+	fflush(stdin);
+
+	gotoxy(62,4); cout<<"NOMBRE:";
+	cin.getline(cliente[contCliente].info.nombre,50,'\n');
+	gotoxy(62,5); cout<<"APELLIDO:";
+	cin.getline(cliente[contCliente].apellido,50,'\n');
+	gotoxy(62,6); cout<<"DIRECCION:";
+	cin.getline(cliente[contCliente].info.direccion,100,'\n');
+	fflush(stdin);
+	gotoxy(125,4); cout<<"TELEFONO:";
+	cin>>cliente[contCliente].info.telefono;
+	fflush(stdin);
+		
+	//conversion de datos a minusculas
+	strlwr(cliente[contCliente].info.nombre);
+	strlwr(cliente[contCliente].apellido);
+	strlwr(cliente[contCliente].info.direccion);
+	cliente[contCliente].info.codigo = codigoCliente;
+	gotoxy(62,5); cout<<"                                               "; //borrar en pantalla apellido
+	gotoxy(62,6); cout<<"                                                   ";// borrar en pantalla direccion
+	gotoxy(125,4); cout<<"                             "; // borrar en pantalla telefono
+	
+	strcat(nombreCompleto, cliente[contCliente].info.nombre);
+	strcat(nombreCompleto, " ");
+	strcat(nombreCompleto, cliente[contCliente].apellido);
+
+	gotoxy(69,4); cout<<nombreCompleto;
+	gotoxy(72,6); cout<<cliente[contCliente].info.direccion;
+	contCliente++; //contador de clientes	
+	codigoCliente++; //contador de codigo del cliente
+}
 
 int buscarCompra(int codigo){
 	int posicion;
@@ -1270,39 +1334,21 @@ int buscarCompra(int codigo){
 	return -1;
 }
 
-void comprarTienda(int posicion, int cantidad,int contCompra, int x, int y){
-	int acumuladorProd = 0;
-	
+void comprarTienda(int posicion, int cantidad,int acumuladorProd, int contCompra, int x, int y){
 	strcpy(compra[contCompra].info.nombre, prodTienda[posicion].info.nombre);
 	compra[contCompra].quantity = cantidad;
 	compra[contCompra].subtotal = prodTienda[posicion].price * cantidad;
-	acumuladorProd = acumuladorProd + compra[contCompra].quantity;
-
-	int i = 0;
-	while(i <= contCompra){
-		gotoxy(148,4); cout<<"  ";
+	
+	for(int i = 0; i <= contCompra; i++){
+//		gotoxy(148,4); cout<<"  ";
 		gotoxy(x,y); cout<<compra[i].info.nombre;
 		gotoxy(x+30,y); cout<<prodTienda[posicion].price;
 		gotoxy(x+45,y); cout<<compra[i].quantity;
 		gotoxy(x+65,y); cout<<compra[i].subtotal;
-		acumuladorProd += compra[i].quantity;
-		gotoxy(140,4); cout<<"Compras: "<<acumuladorProd;
-		i++;
+//		acumuladorProd += compra[i].quantity;
+//		gotoxy(140,4); cout<<"Compras: "<<acumuladorProd;
 	}
 	contCompra++;
-}
-
-void mostrarMisCompras(int contador, int totalCompras){
-	
-
-//	for(int i = 0; i < contador; i++){
-//		gotoxy(x,y); cout<<compra[i].info.nombre;
-//		gotoxy(x+30,y); cout<<prodTienda[i].price;
-//		gotoxy(x+45,y); cout<<compra[i].quantity;
-//		gotoxy(x+65,y); cout<<compra[i].subtotal;
-//		gotoxy(140,4); cout<<"Compras: "<<totalCompras;
-//		y++;
-//	}
 }
 
 //codigo pedro 
