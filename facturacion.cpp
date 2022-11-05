@@ -6,7 +6,8 @@
 #include <windows.h>
 #include <ctime> // para obtener fecha actual
 
-int op, opProv,codigoCliente, contCliente, contProveedor, contProducto, contEmpleado, contBodega, contTienda;
+int op, opProv,codigoCliente, contCliente, contProveedor, contProducto, contEmpleado, contBodega, contTienda, contFac;
+int codFac = 1;
 char nombreCompleto[50];
 
 struct Datos{
@@ -58,11 +59,13 @@ struct Fecha{
 	int day, month, year, second, minutes, hour;
 }obtener, actual;
 
-struct factura{
+struct Factura{
 	int codigo;
 	long int nit;
-	char nombre[50];
-	string fecha;
+	char cliente[100];
+	char empleado[100];
+	int caja;
+//	string fecha;
 	float subtotal;
 	float total;
 	float iva;
@@ -145,21 +148,25 @@ void eliminarEmpleado(); //pedro
 
 //-------------- CLIENTE ------------------
 int mostrarDatosCliente(int nit);
-void registroCliente();
+void registroCliente(int nit);
+
+
+//--------------- REPORTES FACTURAS -------------------
+void menuReport();
 
 //-------------- FACTURACION ------------------
 void formatoLogin();
 void login();
 void fecha(Fecha d);
+void guardarFactura(int codFac, float total, int cantCompra, Cliente client, int posicion, int contCompra);
 void formatoFactura();
 void productosTienda();
 void comprarTienda(int posicion, int cantidad);
 int buscarCompra(int codigo);
 void restarTienda(int cantidad, int posicion);
 void comprarTienda(int posicion, int cantidad, int contCompra, float total,int x, int y);
-void mostrarMisCompras(int contador, int totalCompras);
-void comprar();
-void facturacion();
+void comprar(int posicion);
+void facturacion(int posicion);
 
 
 main(){
@@ -238,8 +245,10 @@ void home(){
 			system("cls");
 		break;
 		case 6:
-//			system("cls");
-//			menuReport(); PENDIENTEEEEEE
+			system("cls");
+			menuReport();
+			getch();
+			system("cls");
 		break;	
 		case 7:
 			gotoxy(57,25); cout<<"Saliendo del sistema...";
@@ -249,6 +258,21 @@ void home(){
 			gotoxy(57,25); cout<<"Opcion invalida, vuelve a intantarlo...";
 			getch();
 			system("cls");
+	}
+}
+
+void menuReport(){
+	for(int i = 0; i < codFac; i++){
+		cout<<"No. factura: "<<detalle[i].codigo<<endl;
+		cout<<"Nit: "<<detalle[i].nit<<endl;
+		cout<<"Cliente: "<<detalle[i].cliente<<endl;
+		cout<<"Atendio: "<<detalle[i].empleado<<endl;
+		cout<<"En caja No: "<<detalle[i].caja<<endl;
+		cout<<"Cantidad comprada: "<<detalle[i].vendido<<endl;
+		cout<<"IVA: "<<detalle[i].iva<<endl;
+		cout<<"Subtotal: "<<detalle[i].subtotal<<endl;
+		cout<<"Total: "<<detalle[i].total<<endl;
+		cout<<"----------------------------------------------";
 	}
 }
 
@@ -316,9 +340,11 @@ void submenuListaProducto(){
 	gotoxy(76,19); cin>>opLista;
 	switch(opLista){
 		case 1:
+			system("cls");
 			listaBodega();
 		break;
 		case 2:
+			system("cls");
 			listaTienda();
 		break;
 		default:
@@ -592,13 +618,15 @@ void loguear(char user[], char password[]){
 		if(strcmp(user, empleado[i].cuenta.user) == 0 && strcmp(password, empleado[i].cuenta.password) == 0) posicion = i;
 	}
 	
+	
+	
 	if(posicion != -1){
 		system("cls");
 		gotoxy(76,16); cout<<"Bienvenido "<<empleado[posicion].cuenta.user<<"!";
 		gotoxy(78,18); cout<<"Espere...";
 		Sleep(1000);
 		system("cls");
-		facturacion();
+		facturacion(posicion);
 	}else{
 		system("cls");
 		gotoxy(76,16); cout<<"Credenciales invalidas";
@@ -1241,7 +1269,7 @@ void login(){
 	ocultarPassword(user, password, 2);
 }
 
-void facturacion(){
+void facturacion(int posicion){
 	formatoFactura();
 	gotoxy(14,2); cout<<"PRODUCTOS DISPONIBLES EN TIENDA";
 	gotoxy(8,34); cout<<"COMPRA DE SUS PRODUCTOS EN LA TIENDA";
@@ -1254,8 +1282,8 @@ void facturacion(){
 	
 	actual = hoy();
 	insertarFecha(actual);
-//	productosTienda();
-	comprar();
+	productosTienda();
+	comprar(posicion);
 }
 
 void productosTienda(){
@@ -1272,7 +1300,7 @@ void productosTienda(){
 	}
 }
 
-void comprar(){
+void comprar(int posicion){
 	int x = 62;
 	int y = 10;
 	float total;
@@ -1289,7 +1317,7 @@ void comprar(){
 		strcat(nombreCompleto, cliente[pos].apellido);
 		gotoxy(69,4); cout<<nombreCompleto;
 		gotoxy(72,6); cout<<cliente[pos].info.direccion;
-	}else registroCliente();
+	}else registroCliente(nit);
 	
 	while(cod != -2){
 		gotoxy(24,36); cin>>cod;
@@ -1300,17 +1328,16 @@ void comprar(){
 			y++;
 			acumuladorProd += compra[contCompra].quantity;
 			total += compra[contCompra].subtotal;
-			total
+			
 			gotoxy(81,39); cout<<"    "; //borrar cantidad articulo comprados
 			gotoxy(62,39); cout<<"ARTICULOS COMPRADOS: "<<acumuladorProd;
 			gotoxy(136,4); cout<<"    "; //borrar total actual y actualizar
 			gotoxy(145,39); cout<<"TOTAL: "<<total;
 		}else if(cod == -2){
-			pagoCompra();
+			guardarFactura(codFac, total, acumuladorProd, cliente[pos], posicion, contCompra);
 		}else if(cod == -3){
 			getch();
 			home();
-			cancelarCompra();
 		}
 		else cout<<"El producto no existe...";
 		gotoxy(24,36); cout<<"      ";
@@ -1318,8 +1345,28 @@ void comprar(){
 	}
 }
 
-void pagoCompra(){
-	
+void guardarFactura(int codFac, float total, int cantCompra, Cliente client, int posicion, int contCompra){
+	int subtotal = 0;
+	char nombreCompleto[70];
+	for(int i = 0; i <= contCompra; i++){
+		subtotal += compra[i].subtotal;
+	}
+	detalle[contFac].codigo = codFac;
+	detalle[contFac].iva = subtotal *0.12;
+	detalle[contFac].subtotal = subtotal;
+	detalle[contFac].total = detalle[contFac].iva + total;
+	detalle[contFac].vendido = cantCompra;
+	detalle[contFac].nit = client.info.nit;
+	strcat(detalle[contFac].cliente, client.info.nombre);
+	strcat(detalle[contFac].cliente, " ");
+	strcat(detalle[contFac].cliente, client.apellido);
+	strcat(nombreCompleto, empleado[posicion].info.nombre);
+	strcat(nombreCompleto, " ");
+	strcat(nombreCompleto, empleado[posicion].apellido);
+	strcat(detalle[contFac].empleado, nombreCompleto);
+	detalle[contFac].caja = empleado[posicion].caja;
+	codFac++;
+	contFac++;
 }
 
 int mostrarDatosCliente(int nit){
@@ -1330,7 +1377,7 @@ int mostrarDatosCliente(int nit){
 	return posicion;
 }
 
-void registroCliente(){	 
+void registroCliente(int nit){	 
 	fflush(stdin);
 
 	gotoxy(62,4); cout<<"NOMBRE:";
@@ -1350,6 +1397,7 @@ void registroCliente(){
 	strlwr(cliente[contCliente].info.nombre);
 	strlwr(cliente[contCliente].apellido);
 	strlwr(cliente[contCliente].info.direccion);
+	cliente[contCliente].info.nit = nit;
 	cliente[contCliente].info.codigo = codigoCliente;
 	gotoxy(62,5); cout<<"                                               "; //borrar en pantalla apellido
 	gotoxy(72,6); cout<<"                                               ";// borrar en pantalla direccion
