@@ -855,7 +855,7 @@ void datosAlmacenar(){
 	cout<<"PRECIO (UNIDAD): Q ";
 	cin>>producto[contProducto].price;
 	fflush(stdin);
-	cout<<"PESO: ";
+	cout<<"PESO EN GRAMOS: ";
 	cin>>producto[contProducto].peso;
 	fflush(stdin);
 }
@@ -1481,7 +1481,7 @@ void productosTienda(){
 void comprar(int posicion){
 	int x = 62;
 	int y = 10;
-	float total;
+	float total, iva;
 	int cod, cantidad, resultado, contCompra, capturar, pos;
 	int acumuladorProd = 0;
 	long int nit;
@@ -1506,11 +1506,14 @@ void comprar(int posicion){
 			y++;
 			acumuladorProd += compra[contCompra].quantity;
 			total += compra[contCompra].subtotal;
+			iva = total *0.12;
 			
 			gotoxy(81,39); cout<<"    "; //borrar cantidad articulo comprados
 			gotoxy(62,39); cout<<"ARTICULOS COMPRADOS: "<<acumuladorProd;
 			gotoxy(136,4); cout<<"    "; //borrar total actual y actualizar
-			gotoxy(145,39); cout<<"TOTAL: "<<total;
+			gotoxy(145,39); cout<<"TOTAL: "<<total+iva;
+			gotoxy(119,39); cout<<"     ";
+			gotoxy(115,39); cout<<"IVA:"<<iva;
 		}else if(cod == -2){
 			system("cls");
 			gotoxy(59,20); cout<<"Guardando factura..";
@@ -1521,7 +1524,9 @@ void comprar(int posicion){
 			system("cls");
 			home();
 		}
-		else cout<<"El producto no existe...";
+		else {
+			gotoxy(3,39); cout<<"El producto no existe...";	
+		}
 		gotoxy(24,36); cout<<"      ";
 		gotoxy(25,37); cout<<"      ";
 	}
@@ -3103,14 +3108,14 @@ void eliminarProducto(){
 		getch();
 		
 		}else{
-		system("cls");
-		formato();
-		gotoxy(68,20); cout<<"Buscando registro.....";
-		Sleep(1000);
-		system("cls");
-		formato();
-		gotoxy(68,20); cout<<"EL PRODUCTO NO EXISTE!! ";
-		getch();;	
+			system("cls");
+			formato();
+			gotoxy(68,20); cout<<"Buscando registro.....";
+			Sleep(1000);
+			system("cls");
+			formato();
+			gotoxy(68,20); cout<<"EL PRODUCTO NO EXISTE!! ";
+			getch();	
 		}
 }
 
